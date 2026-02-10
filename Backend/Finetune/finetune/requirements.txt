@@ -1,0 +1,14 @@
+torch>=2.1.0
+torchvision
+transformers>=4.52.0
+datasets>=2.14.0
+peft>=0.10.0
+trl>=0.8.0
+bitsandbytes>=0.43.0
+huggingface_hub>=0.23.0
+Pillow>=10.0.0
+requests>=2.31.0
+accelerate>=0.27.0
+# Optional: speeds up Qwen3.5 linear attention layers
+# causal-conv1d
+# flash-linear-attention
