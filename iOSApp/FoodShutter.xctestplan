@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "D38601C5-99AC-4B47-B343-A04A66C614AA",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:FoodShutter.xcodeproj",
+      "identifier" : "4949B8AB2E9E12990002D596",
+      "name" : "FoodShutter"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:FoodShutter.xcodeproj",
+        "identifier" : "497F023C2EE734BC00B5E45E",
+        "name" : "FoodShutterTesting"
+      }
+    }
+  ],
+  "version" : 1
+}
