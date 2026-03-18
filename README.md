@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="iOSApp/Appendix/appIcon.png" width="120" />
+  <img src="Appendix/appIcon.png" width="120" />
 </p>
 
 <h1 align="center">FoodShutter</h1>
