@@ -1,0 +1,18 @@
+[project]
+name = "food-pipeline"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-genai>=1.74.0",
+    "pillow>=11.0.0",
+    "ollama>=0.4",
+    "chromadb>=0.5",
+    "sentence-transformers>=3.0",
+    "fastapi[standard]>=0.115",
+    "supabase>=2.10",
+    "PyJWT>=2.9",
+    "python-dotenv>=1.0",
+    "openai>=1.30",
+]

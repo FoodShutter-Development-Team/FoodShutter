@@ -1,0 +1,197 @@
+{
+  "dataset": "food_pipeline_eval_v2",
+  "created": "2026-04-29",
+  "source": "Unsplash (free tier)",
+  "license": "Unsplash License — free for use, no attribution required",
+  "total": 20,
+  "cuisine_distribution": {
+    "chinese": 10,
+    "western": 4,
+    "korean": 4,
+    "italian": 1,
+    "mexican": 1
+  },
+  "images": [
+    {
+      "file": "meal_01.jpg",
+      "unsplash_id": "1707897748442-cc3a48d31300",
+      "cuisine": "chinese",
+      "scene": "多碗面条（红汤馄饨、干拌面、小菜）",
+      "dish_count_approx": 4,
+      "dof": "medium",
+      "tags": ["面食", "中餐", "家常"]
+    },
+    {
+      "file": "meal_02.jpg",
+      "unsplash_id": "1597490101653-8db754021a89",
+      "cuisine": "chinese",
+      "scene": "红烧鱼铁锅 + 炒青菜（俯视）",
+      "dish_count_approx": 2,
+      "dof": "deep",
+      "tags": ["鱼", "家常", "俯视"]
+    },
+    {
+      "file": "meal_03.jpg",
+      "unsplash_id": "1496116155751-2833e0c42786",
+      "cuisine": "chinese",
+      "scene": "家常饺子 + 拍黄瓜 + 凉面（木桌，自然光）",
+      "dish_count_approx": 3,
+      "dof": "deep",
+      "tags": ["饺子", "家常", "深景深"]
+    },
+    {
+      "file": "meal_04.jpg",
+      "unsplash_id": "1705596704813-b39b95549cd2",
+      "cuisine": "chinese",
+      "scene": "炒鸡块+米饭+炒菜（黑色餐盘，两碗）",
+      "dish_count_approx": 3,
+      "dof": "medium",
+      "tags": ["炒菜", "米饭", "家常"]
+    },
+    {
+      "file": "meal_05.jpg",
+      "unsplash_id": "1661569190745-f7047a0488ba",
+      "cuisine": "chinese",
+      "scene": "家常菜7盘俯视：煎蛋、炒肉丝、红烧鱼、炖菜、炒蕨菜等",
+      "dish_count_approx": 7,
+      "dof": "deep",
+      "tags": ["家常", "俯视", "多菜"]
+    },
+    {
+      "file": "meal_06.jpg",
+      "unsplash_id": "1657812453317-031b93301ef0",
+      "cuisine": "chinese",
+      "scene": "米饭 + 红烧牛肉 + 炒青菜（深景深，三碟）",
+      "dish_count_approx": 3,
+      "dof": "deep",
+      "tags": ["米饭", "红烧", "深景深"]
+    },
+    {
+      "file": "meal_07.jpg",
+      "unsplash_id": "1661569190745-f7047a0488ba",
+      "cuisine": "chinese",
+      "scene": "炒菜3盘桌面（云南/东南亚风）：凉拌、炒蔬菜、辣拌",
+      "dish_count_approx": 3,
+      "dof": "medium",
+      "tags": ["炒菜", "家常", "桌面"]
+    },
+    {
+      "file": "meal_08.jpg",
+      "unsplash_id": "1707723279446-8445e1e327f2",
+      "cuisine": "chinese",
+      "scene": "家常餐桌：清蒸鱼、炒土豆、花生、木耳汤、米饭",
+      "dish_count_approx": 5,
+      "dof": "deep",
+      "tags": ["家常", "多菜", "中餐"]
+    },
+    {
+      "file": "meal_09.jpg",
+      "unsplash_id": "1648970198229-b7c89fc0e2a5",
+      "cuisine": "chinese",
+      "scene": "铁锅炖肉 + 汤碗 + 米饭 + 炒青菜（烛光桌面）",
+      "dish_count_approx": 4,
+      "dof": "deep",
+      "tags": ["炖菜", "铁锅", "家常"]
+    },
+    {
+      "file": "meal_10.jpg",
+      "unsplash_id": "1759893497863-c90a6dfa7a86",
+      "cuisine": "chinese",
+      "scene": "多碗中式面食套餐（3碗面+配汤）",
+      "dish_count_approx": 4,
+      "dof": "medium",
+      "tags": ["面食", "套餐", "中餐"]
+    },
+    {
+      "file": "meal_11.jpg",
+      "unsplash_id": "1735190093635-d99b2e43224e",
+      "cuisine": "western",
+      "scene": "西式宴席：蚝、烤牛肉、烤虾、甜椒薯、砂锅",
+      "dish_count_approx": 5,
+      "dof": "medium",
+      "tags": ["西餐", "宴席"]
+    },
+    {
+      "file": "meal_12.jpg",
+      "unsplash_id": "1773005695004-96e8457656df",
+      "cuisine": "western",
+      "scene": "西式开胃小碟：西红柿、蓝莓、芹菜、甜椒（桌面俯视）",
+      "dish_count_approx": 5,
+      "dof": "deep",
+      "tags": ["西餐", "小碟", "俯视"]
+    },
+    {
+      "file": "meal_13.jpg",
+      "unsplash_id": "1659690402718-ea07d943fd42",
+      "cuisine": "western",
+      "scene": "西式餐厅聚餐：牛排、沙拉、多菜盘、红酒",
+      "dish_count_approx": 4,
+      "dof": "medium",
+      "tags": ["西餐", "聚餐"]
+    },
+    {
+      "file": "meal_14.jpg",
+      "unsplash_id": "1771161409360-e07e34e20c1b",
+      "cuisine": "western",
+      "scene": "感恩节家宴俯视：火鸡、土豆泥、绿豆、蔓越莓酱、面包、肉汁",
+      "dish_count_approx": 7,
+      "dof": "deep",
+      "tags": ["美式", "家宴", "俯视"]
+    },
+    {
+      "file": "meal_15.jpg",
+      "unsplash_id": "1770678724766-08268bbc61e2",
+      "cuisine": "italian",
+      "scene": "意式四菜：卡布里沙拉、管面、披萨、鲑鱼意面",
+      "dish_count_approx": 4,
+      "dof": "medium",
+      "tags": ["意餐", "多菜"]
+    },
+    {
+      "file": "meal_16.jpg",
+      "unsplash_id": "1746635732995-ab5c6118d5a7",
+      "cuisine": "mexican",
+      "scene": "墨西哥家庭聚餐俯视：炸玉米卷、豆子、牛油果、莎莎酱",
+      "dish_count_approx": 7,
+      "dof": "deep",
+      "tags": ["墨西哥", "聚餐", "俯视"]
+    },
+    {
+      "file": "meal_17.jpg",
+      "unsplash_id": "1761303506087-9788d0a98e87",
+      "cuisine": "korean",
+      "scene": "韩式大排档：大量铜碗小菜、鱼、汤锅、泡菜",
+      "dish_count_approx": 12,
+      "dof": "medium",
+      "tags": ["韩餐", "小菜", "铜碗"]
+    },
+    {
+      "file": "meal_18.jpg",
+      "unsplash_id": "1771339140258-17f090ef6007",
+      "cuisine": "korean",
+      "scene": "韩式石锅拌饭套餐：石锅饭、泡菜、豆芽等小菜",
+      "dish_count_approx": 6,
+      "dof": "deep",
+      "tags": ["韩餐", "拌饭", "俯视"]
+    },
+    {
+      "file": "meal_19.jpg",
+      "unsplash_id": "1744870132190-5c02d3f8d9f9",
+      "cuisine": "korean",
+      "scene": "韩式套餐：年糕辣炒、炸鸡、紫菜包饭、米饭、泡菜（俯视）",
+      "dish_count_approx": 5,
+      "dof": "deep",
+      "tags": ["韩餐", "套餐", "俯视"]
+    },
+    {
+      "file": "meal_20.jpg",
+      "unsplash_id": "1729708475294-fb3be3809dcb",
+      "cuisine": "western",
+      "scene": "西式自助餐台：沙拉碗、火腿盘、奶酪拼盘、面包卷",
+      "dish_count_approx": 6,
+      "dof": "deep",
+      "tags": ["西餐", "自助", "多菜"]
+    }
+  ],
+  "notes": "中餐家常菜 10 张（meal_01-10），其他菜系 10 张（meal_11-20）。图片来自 Unsplash 免费授权。如需更高中餐覆盖度建议补充自拍图。"
+}

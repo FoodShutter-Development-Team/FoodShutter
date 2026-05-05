@@ -1,0 +1,34 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# macOS
+.DS_Store
+
+# Claude internal
+.claude/
+
+# Dataset images & archives (large binaries)
+dataset/images/
+dataset/images.zip
+
+# Results (intermediate outputs, not source)
+results/
+
+# Nutrition DB built artifacts (rebuild with build_db.py)
+nutrition_db/chroma_db/
+nutrition_db/data/raw/
+nutrition_db/data/foundation_foods_cleaned.json
+
+# Local test data
+test_photos/
+
+# Misc
+uv.lock
