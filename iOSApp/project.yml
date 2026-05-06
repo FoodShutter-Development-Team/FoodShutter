@@ -1,0 +1,55 @@
+name: FoodShutter
+options:
+  bundleIdPrefix: com.foodshutter
+  deploymentTarget:
+    iOS: "26.0"
+  xcodeVersion: "26"
+  generateEmptyDirectories: true
+
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: "2.0.0"
+
+targets:
+  FoodShutter:
+    type: application
+    platform: iOS
+    sources:
+      - path: FoodShutter
+    info:
+      path: FoodShutter/Info.plist
+      properties:
+        CFBundleDisplayName: FoodShutter
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0"
+        UILaunchScreen:
+          UIColorName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSCameraUsageDescription: "FoodShutter needs camera access to photograph your meals."
+        NSLocalNetworkUsageDescription: "FoodShutter connects to the local analysis server."
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+          NSAllowsLocalNetworking: true
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - foodshutter
+    dependencies:
+      - package: Supabase
+        product: Supabase
+    settings:
+      base:
+        SWIFT_VERSION: "5.10"
+        TARGETED_DEVICE_FAMILY: "1"
+
+  FoodShutterTesting:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: FoodShutterTesting
+    dependencies:
+      - target: FoodShutter
+    settings:
+      base:
+        SWIFT_VERSION: "5.10"

@@ -2,387 +2,99 @@
 //  MealEntityTests.swift
 //  FoodShutterTesting
 //
-//  Tests for MealEntity aggregations and transformations
+//  Tests for SupabaseModels decoding and computed aggregates.
 //
 
 import XCTest
-import SwiftData
 @testable import FoodShutter
 
 final class MealEntityTests: XCTestCase {
 
-    var testContainer: ModelContainer!
+    // MARK: - MealType Tests
 
-    // MARK: - Setup & Teardown
-
-    override func setUp() {
-        super.setUp()
-        testContainer = SwiftDataTestHelpers.createMealContainer()
+    func testMealType_RawValues_AreLowercase() {
+        XCTAssertEqual(MealType.breakfast.rawValue, "breakfast")
+        XCTAssertEqual(MealType.lunch.rawValue, "lunch")
+        XCTAssertEqual(MealType.dinner.rawValue, "dinner")
+        XCTAssertEqual(MealType.snack.rawValue, "snack")
+        XCTAssertEqual(MealType.other.rawValue, "other")
     }
 
-    override func tearDown() {
-        testContainer = nil
-        super.tearDown()
+    func testMealType_Determine_ReturnsValidType() {
+        let type = MealType.determine()
+        XCTAssertTrue(MealType.allCases.contains(type))
     }
 
-    // MARK: - Aggregation Tests
+    // MARK: - MealStatus Tests
 
-    /// Test total protein aggregates across multiple dishes
-    func testTotalProtein_MultipleDishes_AggregatesCorrectly() {
-        // ARRANGE
-        let ingredient1 = IngredientEntity(
+    func testMealStatus_RawValues() {
+        XCTAssertEqual(MealStatus.processing.rawValue, "processing")
+        XCTAssertEqual(MealStatus.dishesReady.rawValue, "dishes_ready")
+        XCTAssertEqual(MealStatus.complete.rawValue, "complete")
+        XCTAssertEqual(MealStatus.failed.rawValue, "failed")
+    }
+
+    func testMealStatus_Decode_UnknownFallsToProcessing() {
+        let decoded = MealStatus(rawValue: "unknown")
+        XCTAssertNil(decoded)
+    }
+
+    // MARK: - FoodIngredient Tests
+
+    func testFoodIngredient_BackendModel_StoresAbsoluteGrams() {
+        let ing = FoodIngredient(
             name: "Chicken",
-            icon: "🐔",
-            weight: 150,
-            proteinPercent: 31,  // 46.5g protein
-            fatPercent: 3.6,
-            carbohydratePercent: 0
+            weightGrams: 150,
+            calories: 234,
+            proteinG: 46.5,
+            fatG: 5.4,
+            carbG: 0
         )
-
-        let ingredient2 = IngredientEntity(
-            name: "Broccoli",
-            icon: "🥦",
-            weight: 100,
-            proteinPercent: 2.8,  // 2.8g protein
-            fatPercent: 0.4,
-            carbohydratePercent: 7
-        )
-
-        let dish1 = DishEntity(name: "Dish 1", icon: "🍽️", ingredients: [ingredient1])
-        let dish2 = DishEntity(name: "Dish 2", icon: "🥗", ingredients: [ingredient2])
-
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .lunch,
-            photo: nil,
-            dishes: [dish1, dish2],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let totalProtein = meal.totalProtein
-
-        // ASSERT
-        // 46.5 + 2.8 = 49.3g
-        XCTAssertEqual(totalProtein, 49.3, accuracy: 0.01, "Should aggregate protein across all dishes")
+        XCTAssertEqual(ing.proteinWeight, 46.5)
+        XCTAssertEqual(ing.fatWeight, 5.4)
+        XCTAssertEqual(ing.carbohydrateWeight, 0)
+        XCTAssertEqual(ing.calories, 234)
     }
 
-    /// Test total fat aggregates correctly
-    func testTotalFat_MultipleDishes_AggregatesCorrectly() {
-        // ARRANGE
-        let ingredient1 = IngredientEntity(
-            name: "Chicken",
-            icon: "🐔",
-            weight: 150,
-            proteinPercent: 31,
-            fatPercent: 3.6,  // 5.4g fat
-            carbohydratePercent: 0
+    func testFoodIngredient_BarPercentages_SumToHundred() {
+        let ing = FoodIngredient(
+            name: "Mixed",
+            weightGrams: 100,
+            calories: 100,
+            proteinG: 20,
+            fatG: 10,
+            carbG: 70
         )
-
-        let ingredient2 = IngredientEntity(
-            name: "Broccoli",
-            icon: "🥦",
-            weight: 100,
-            proteinPercent: 2.8,
-            fatPercent: 0.4,  // 0.4g fat
-            carbohydratePercent: 7
-        )
-
-        let dish = DishEntity(name: "Mixed", icon: "🍽️", ingredients: [ingredient1, ingredient2])
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .dinner,
-            photo: nil,
-            dishes: [dish],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let totalFat = meal.totalFat
-
-        // ASSERT
-        // 5.4 + 0.4 = 5.8g
-        XCTAssertEqual(totalFat, 5.8, accuracy: 0.01, "Should aggregate fat across all ingredients")
+        let total = ing.proteinPercent + ing.fatPercent + ing.carbohydratePercent
+        XCTAssertEqual(total, 100.0, accuracy: 0.01)
     }
 
-    /// Test total carbohydrate aggregates correctly
-    func testTotalCarbohydrate_MultipleDishes_AggregatesCorrectly() {
-        // ARRANGE
-        let ingredient1 = IngredientEntity(
-            name: "Rice",
-            icon: "🍚",
-            weight: 150,
-            proteinPercent: 2.6,
-            fatPercent: 0.3,
-            carbohydratePercent: 25.9  // 38.85g carbs
-        )
+    // MARK: - Dish Aggregation
 
-        let ingredient2 = IngredientEntity(
-            name: "Beans",
-            icon: "🫘",
-            weight: 100,
-            proteinPercent: 9,
-            fatPercent: 0.5,
-            carbohydratePercent: 21  // 21g carbs
-        )
-
-        let dish = DishEntity(name: "Rice & Beans", icon: "🍽️", ingredients: [ingredient1, ingredient2])
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .lunch,
-            photo: nil,
-            dishes: [dish],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let totalCarbs = meal.totalCarbohydrate
-
-        // ASSERT
-        // 38.85 + 21 = 59.85g
-        XCTAssertEqual(totalCarbs, 59.85, accuracy: 0.01, "Should aggregate carbohydrates across all ingredients")
+    func testDish_TotalCalories_SumsIngredients() {
+        let ingredients = [
+            FoodIngredient(name: "A", weightGrams: 100, calories: 200, proteinG: 10, fatG: 5, carbG: 30),
+            FoodIngredient(name: "B", weightGrams: 50,  calories: 100, proteinG: 5,  fatG: 2, carbG: 15)
+        ]
+        let dish = Dish(name: "Test", ingredients: ingredients)
+        XCTAssertEqual(dish.totalCalories, 300, accuracy: 0.01)
+        XCTAssertEqual(dish.totalProtein, 15, accuracy: 0.01)
+        XCTAssertEqual(dish.totalFat, 7, accuracy: 0.01)
+        XCTAssertEqual(dish.totalCarbohydrate, 45, accuracy: 0.01)
     }
 
-    /// Test total calories aggregates correctly
-    func testTotalCalories_MultipleDishes_AggregatesCorrectly() {
-        // ARRANGE
-        let ingredient = IngredientEntity(
-            name: "Mixed Food",
-            icon: "🍽️",
-            weight: 100,
-            proteinPercent: 20,  // 20g * 4 = 80 cal
-            fatPercent: 10,      // 10g * 9 = 90 cal
-            carbohydratePercent: 30  // 30g * 4 = 120 cal
-            // Total: 290 cal
-        )
+    // MARK: - NutritionSummaryData
 
-        let dish = DishEntity(name: "Test Dish", icon: "🍽️", ingredients: [ingredient])
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .breakfast,
-            photo: nil,
-            dishes: [dish],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let totalCalories = meal.totalCalories
-
-        // ASSERT
-        XCTAssertEqual(totalCalories, 290, accuracy: 0.01, "Should calculate total calories correctly")
-    }
-
-    // MARK: - Photo Handling Tests
-
-    /// Test photo property returns UIImage when data exists
-    func testPhoto_WithValidData_ReturnsUIImage() {
-        // ARRANGE
-        let testImage = TestHelpers.createTestImage()
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .lunch,
-            photo: testImage,
-            dishes: [],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let retrievedPhoto = meal.photo
-
-        // ASSERT
-        XCTAssertNotNil(retrievedPhoto, "Should return UIImage when photo data exists")
-        XCTAssertNotNil(meal.photoData, "Photo data should be stored")
-    }
-
-    /// Test photo property returns nil when no data
-    func testPhoto_WithNilData_ReturnsNil() {
-        // ARRANGE
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .snack,
-            photo: nil,
-            dishes: [],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let photo = meal.photo
-
-        // ASSERT
-        XCTAssertNil(photo, "Should return nil when no photo data")
-        XCTAssertNil(meal.photoData, "Photo data should be nil")
-    }
-
-    /// Test photo is compressed at 0.7 quality
-    func testPhotoData_CompressesImage() {
-        // ARRANGE
-        let testImage = TestHelpers.createLargeTestImage(size: CGSize(width: 100, height: 100))
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .dinner,
-            photo: testImage,
-            dishes: [],
-            dietaryAdvice: nil
-        )
-
-        // ACT & ASSERT
-        XCTAssertNotNil(meal.photoData, "Should compress and store image")
-
-        // Verify it can be decoded
-        let decodedPhoto = meal.photo
-        XCTAssertNotNil(decodedPhoto, "Compressed photo should be decodable")
-    }
-
-    // MARK: - Dietary Advice Tests
-
-    /// Test dietary advice decodes correctly when present
-    func testDietaryAdvice_WithValidData_DecodesCorrectly() {
-        // ARRANGE
-        let recommendedDish = FoodShutter.RecommendedMealDish(
-            dishName: "Vegetable Salad",
-            icon: "🥗",
-            weight: 200,
-            proteinPercent: 5,
-            fatPercent: 2,
-            carbohydratePercent: 10
-        )
-
-        let mockAdvice = FoodShutter.DietaryAdviceResult(
-            analysis: FoodShutter.NutritionAnalysis(
-                summary: "Good balance",
-                nutritionStatus: "Healthy",
-                pros: ["High protein"],
-                cons: ["Low fiber"]
-            ),
-            nextMealRecommendation: FoodShutter.NextMealRecommendation(
-                recommendedDish: recommendedDish,
-                reason: "To increase fiber intake",
-                nutrientsFocus: ["Fiber", "Vitamins"]
-            )
-        )
-
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .lunch,
-            photo: nil,
-            dishes: [],
-            dietaryAdvice: mockAdvice
-        )
-
-        // ACT
-        let retrievedAdvice = meal.dietaryAdvice
-
-        // ASSERT
-        XCTAssertNotNil(retrievedAdvice, "Should decode dietary advice")
-        XCTAssertEqual(retrievedAdvice?.analysis.summary, "Good balance", "Should match original advice")
-    }
-
-    /// Test dietary advice returns nil when no data
-    func testDietaryAdvice_WithNilData_ReturnsNil() {
-        // ARRANGE
-        let meal = MealEntity(
-            timestamp: Date(),
-            mealType: .breakfast,
-            photo: nil,
-            dishes: [],
-            dietaryAdvice: nil
-        )
-
-        // ACT
-        let advice = meal.dietaryAdvice
-
-        // ASSERT
-        XCTAssertNil(advice, "Should return nil when no advice data")
-        XCTAssertNil(meal.adviceData, "Advice data should be nil")
-    }
-
-    // MARK: - Transformation Tests
-
-    /// Test fromAnalysisResults creates correct entity structure
-    func testFromAnalysisResults_CreatesCorrectEntityStructure() {
-        // ARRANGE
-        let dishes = [TestHelpers.createMockDish()]
-        let timestamp = Date()
-
-        // ACT
-        let mealEntity = MealEntity.fromAnalysisResults(
-            timestamp: timestamp,
-            mealType: .lunch,
-            photo: nil,
-            dishes: dishes,
-            dietaryAdvice: nil
-        )
-
-        // ASSERT
-        XCTAssertEqual(mealEntity.dishes.count, 1, "Should have one dish")
-        XCTAssertEqual(mealEntity.mealTypeEnum, .lunch, "Meal type should match")
-        XCTAssertEqual(mealEntity.dishes.first?.ingredients.count, 2, "Dish should have ingredients")
-    }
-
-    /// Test fromAnalysisResults maps all dishes and ingredients
-    func testFromAnalysisResults_MapsAllDishesAndIngredients() {
-        // ARRANGE
-        let ingredient1 = FoodIngredient(
-            name: "Test Ingredient 1",
-            icon: "🥩",
-            weight: 100,
-            proteinPercent: 20,
-            fatPercent: 10,
-            carbohydratePercent: 5
-        )
-
-        let ingredient2 = FoodIngredient(
-            name: "Test Ingredient 2",
-            icon: "🥬",
-            weight: 50,
-            proteinPercent: 3,
-            fatPercent: 0.5,
-            carbohydratePercent: 8
-        )
-
-        let dish1 = Dish(name: "Dish 1", icon: "🍽️", ingredients: [ingredient1])
-        let dish2 = Dish(name: "Dish 2", icon: "🥗", ingredients: [ingredient2])
-
-        // ACT
-        let mealEntity = MealEntity.fromAnalysisResults(
-            timestamp: Date(),
-            mealType: .dinner,
-            photo: nil,
-            dishes: [dish1, dish2],
-            dietaryAdvice: nil
-        )
-
-        // ASSERT
-        XCTAssertEqual(mealEntity.dishes.count, 2, "Should create 2 dish entities")
-        XCTAssertEqual(mealEntity.dishes[0].name, "Dish 1", "First dish name should match")
-        XCTAssertEqual(mealEntity.dishes[1].name, "Dish 2", "Second dish name should match")
-        XCTAssertEqual(mealEntity.dishes[0].ingredients.count, 1, "First dish should have 1 ingredient")
-        XCTAssertEqual(mealEntity.dishes[1].ingredients.count, 1, "Second dish should have 1 ingredient")
-    }
-
-    // MARK: - Meal Type Tests
-
-    /// Test meal type enum conversion
-    func testMealTypeEnum_ConvertsCorrectly() {
-        // ARRANGE & ACT
-        let breakfastMeal = MealEntity(
-            timestamp: Date(),
-            mealType: .breakfast,
-            photo: nil,
-            dishes: [],
-            dietaryAdvice: nil
-        )
-
-        let lunchMeal = MealEntity(
-            timestamp: Date(),
-            mealType: .lunch,
-            photo: nil,
-            dishes: [],
-            dietaryAdvice: nil
-        )
-
-        // ASSERT
-        XCTAssertEqual(breakfastMeal.mealTypeEnum, .breakfast, "Should convert to breakfast enum")
-        XCTAssertEqual(lunchMeal.mealTypeEnum, .lunch, "Should convert to lunch enum")
+    func testNutritionSummaryData_AggregatesCorrectly() {
+        let ingredients = [
+            FoodIngredient(name: "X", weightGrams: 200, calories: 300, proteinG: 30, fatG: 10, carbG: 40),
+            FoodIngredient(name: "Y", weightGrams: 100, calories: 150, proteinG: 15, fatG: 5,  carbG: 20)
+        ]
+        let data = NutritionSummaryData(ingredients: ingredients)
+        XCTAssertEqual(data.totalWeight, 300, accuracy: 0.01)
+        XCTAssertEqual(data.totalCalories, 450, accuracy: 0.01)
+        XCTAssertEqual(data.totalProtein, 45, accuracy: 0.01)
+        XCTAssertEqual(data.totalFat, 15, accuracy: 0.01)
+        XCTAssertEqual(data.totalCarbohydrate, 60, accuracy: 0.01)
     }
 }

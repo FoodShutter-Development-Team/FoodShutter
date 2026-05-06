@@ -49,7 +49,7 @@ enum TrophyType: String, Codable {
 // MARK: - Trophy Model
 
 /// Represents an earned trophy/achievement
-struct Trophy: Identifiable {
+struct Trophy: Identifiable, Equatable {
     let id: UUID
     let type: TrophyType
     let earnedDate: Date

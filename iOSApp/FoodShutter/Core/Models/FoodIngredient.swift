@@ -2,123 +2,128 @@
 //  FoodIngredient.swift
 //  FoodShutter
 //
-//  Created by Cosmos on 19/10/2025.
-//
 
 import SwiftUI
 
-/// 食物成分模型
 struct FoodIngredient: Identifiable, Equatable {
-    let id = UUID()
-    let name: String              // 食物名称
-    let icon: String              // Emoji 图标
-    let weight: Double            // 重量（克）
-    let proteinPercent: Double    // 蛋白质百分比 (0-100)
-    let fatPercent: Double        // 脂肪百分比 (0-100)
-    let carbohydratePercent: Double // 碳水化合物百分比 (0-100)
+    let id: UUID
+    let name: String
+    let icon: String
+    let weightGrams: Double
+    let calories: Double
+    let proteinG: Double
+    let fatG: Double
+    let carbG: Double
+    let confidence: String?
+    let source: String?
 
-    /// 计算蛋白质重量（克）
-    var available: Double {
-        carbohydratePercent+proteinPercent+fatPercent
-    }
-    
-    var proteinWeight: Double {
-        weight * proteinPercent / 100
+    init(
+        id: UUID = UUID(),
+        name: String,
+        icon: String = "🍽️",
+        weightGrams: Double,
+        calories: Double,
+        proteinG: Double,
+        fatG: Double,
+        carbG: Double,
+        confidence: String? = nil,
+        source: String? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.weightGrams = weightGrams
+        self.calories = calories
+        self.proteinG = proteinG
+        self.fatG = fatG
+        self.carbG = carbG
+        self.confidence = confidence
+        self.source = source
     }
 
-    /// 计算脂肪重量（克）
-    var fatWeight: Double {
-        weight * fatPercent / 100
+    // MARK: - Aliases for UI compatibility
+
+    var weight: Double { weightGrams }
+    var proteinWeight: Double { proteinG }
+    var fatWeight: Double { fatG }
+    var carbohydrateWeight: Double { carbG }
+
+    // MARK: - Bar chart percentages (proportion of total macros)
+
+    private var totalMacros: Double { proteinG + fatG + carbG }
+
+    var available: Double { totalMacros }
+
+    var proteinPercent: Double {
+        guard totalMacros > 0 else { return 0 }
+        return proteinG / totalMacros * 100
     }
 
-    /// 计算碳水化合物重量（克）
-    var carbohydrateWeight: Double {
-        weight * carbohydratePercent / 100
+    var fatPercent: Double {
+        guard totalMacros > 0 else { return 0 }
+        return fatG / totalMacros * 100
     }
 
-    /// 计算总卡路里（蛋白质4卡/克，脂肪9卡/克，碳水4卡/克）
-    var calories: Double {
-        proteinWeight * 4 + fatWeight * 9 + carbohydrateWeight * 4
+    var carbohydratePercent: Double {
+        guard totalMacros > 0 else { return 0 }
+        return carbG / totalMacros * 100
     }
 }
 
 extension FoodIngredient {
     static func == (lhs: FoodIngredient, rhs: FoodIngredient) -> Bool {
-        lhs.name == rhs.name &&
-        lhs.icon == rhs.icon &&
-        lhs.weight == rhs.weight &&
-        lhs.proteinPercent == rhs.proteinPercent &&
-        lhs.fatPercent == rhs.fatPercent &&
-        lhs.carbohydratePercent == rhs.carbohydratePercent
+        lhs.id == rhs.id
     }
 }
 
-// MARK: - 示例数据
+// MARK: - Sample Data
+
 extension FoodIngredient {
     static let sampleData: [FoodIngredient] = [
         FoodIngredient(
             name: "Fresh Fish (Carp/Grass Carp)",
             icon: "🐟",
-            weight: 200,  // 约200克鱼肉（去骨净肉）
-            proteinPercent: 17.0,  // 鲤鱼和草鱼平均值
-            fatPercent: 4.5,
-            carbohydratePercent: 0.3
+            weightGrams: 200,
+            calories: 216,
+            proteinG: 34.0,
+            fatG: 9.0,
+            carbG: 0.6
         ),
         FoodIngredient(
             name: "Kale",
             icon: "🥬",
-            weight: 50,  // 羽衣甘蓝装饰部分
-            proteinPercent: 4.3,
-            fatPercent: 0.9,
-            carbohydratePercent: 8.8
+            weightGrams: 50,
+            calories: 22,
+            proteinG: 2.2,
+            fatG: 0.5,
+            carbG: 4.4
         ),
         FoodIngredient(
             name: "Sour Soup Base",
             icon: "🍲",
-            weight: 300,  // 酸汤底料（含番茄、辣椒发酵）
-            proteinPercent: 0.8,
-            fatPercent: 0.3,
-            carbohydratePercent: 3.5
+            weightGrams: 300,
+            calories: 36,
+            proteinG: 2.4,
+            fatG: 0.9,
+            carbG: 10.5
         ),
         FoodIngredient(
             name: "Tomato in Soup",
             icon: "🍅",
-            weight: 80,  // 额外添加的番茄
-            proteinPercent: 0.9,
-            fatPercent: 0.2,
-            carbohydratePercent: 3.9
+            weightGrams: 80,
+            calories: 14,
+            proteinG: 0.7,
+            fatG: 0.2,
+            carbG: 3.1
         ),
         FoodIngredient(
             name: "Wood Ginger Oil",
             icon: "🌿",
-            weight: 5,  // 木姜子油调味
-            proteinPercent: 0,
-            fatPercent: 100,
-            carbohydratePercent: 0
-        ),
-        FoodIngredient(
-            name: "Ginger & Garlic",
-            icon: "🧄",
-            weight: 10,
-            proteinPercent: 1.8,
-            fatPercent: 0.5,
-            carbohydratePercent: 16.3
-        ),
-        FoodIngredient(
-            name: "Green Onion",
-            icon: "🥬",
-            weight: 5,
-            proteinPercent: 1.8,
-            fatPercent: 0.3,
-            carbohydratePercent: 7.3
-        ),
-        FoodIngredient(
-            name: "Chili Pepper",
-            icon: "🌶️",
-            weight: 10,
-            proteinPercent: 1.9,
-            fatPercent: 0.4,
-            carbohydratePercent: 8.8
+            weightGrams: 5,
+            calories: 45,
+            proteinG: 0,
+            fatG: 5.0,
+            carbG: 0
         )
     ]
 }

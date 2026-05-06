@@ -2,7 +2,7 @@
 //  OnboardingFlowView.swift
 //  FoodShutter
 //
-//  首次登录后引导用户填写资料（Supabase 版）
+//  Guides new users through filling in their profile after first login (Supabase version)
 //
 
 import SwiftUI
@@ -26,7 +26,7 @@ struct OnboardingFlowView: View {
                 }
 
             case .info(let name):
-                // 新用户无已有资料，profile 传 nil，initialName 传 WelcomeView 收集的姓名
+                // New user has no existing profile; pass nil for profile and the name collected in WelcomeView
                 InfoView(
                     initialName:     name,
                     profile:         nil,

@@ -2,8 +2,6 @@
 //  HistoryList.swift
 //  FoodShutter
 //
-//  餐食历史列表（Supabase 云端版）
-//
 
 import SwiftUI
 
@@ -29,11 +27,11 @@ struct HistoryList: View {
                             selectedMeal = meal
                         } label: {
                             HistoryRow(
-                                protein:    meal.totalProtein,
-                                fat:        meal.totalFat,
-                                carbon:     meal.totalCarbohydrate,
-                                timestamp:  meal.timestamp,
-                                dishIcons:  meal.dishes.compactMap { $0.icon }
+                                protein:   meal.totalProtein,
+                                fat:       meal.totalFat,
+                                carbon:    meal.totalCarbohydrate,
+                                timestamp: meal.timestamp,
+                                mealType:  meal.mealTypeEnum
                             )
                         }
                         .buttonStyle(.plain)
@@ -46,17 +44,12 @@ struct HistoryList: View {
         .frame(maxHeight: .infinity)
         .background(Rectangle().fill(.backGround))
         .ignoresSafeArea()
-        .task {
-            await loadMeals()
-        }
-        .refreshable {
-            await loadMeals()
-        }
+        .task { await loadMeals() }
+        .refreshable { await loadMeals() }
     }
 
     private func loadMeals() async {
         meals = (try? await MealRepository.shared.fetchRecentMeals(limit: 50)) ?? []
-        print("✓ Loaded \(meals.count) meals from Supabase")
     }
 }
 

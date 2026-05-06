@@ -115,16 +115,16 @@ struct SettingSidebarView: View {
         }
     }
 
-    // Calculate detail view offset (从右边滑入，覆盖整个屏幕)
+    // Calculate detail view offset (slides in from the right, covers the entire screen)
     private func detailViewOffset(hasDetailView: Bool, screenWidth: CGFloat) -> CGFloat {
         if hasDetailView {
-            return 0  // 完全可见
+            return 0  // Fully visible
         } else {
-            return screenWidth  // 隐藏在右边屏幕外
+            return screenWidth  // Hidden off the right edge of the screen
         }
     }
 
-    // Calculate sidebar offset (从右边滑入到屏幕右侧)
+    // Calculate sidebar offset (slides in from the right to the screen's right side)
     private func sidebarOffset(
         isPresented: Bool,
         hasDetailView: Bool,
@@ -133,14 +133,14 @@ struct SettingSidebarView: View {
         dragOffset: CGFloat
     ) -> CGFloat {
         if !isPresented {
-            // Sidebar完全隐藏在右边屏幕外
+            // Sidebar is fully hidden off the right edge of the screen
             return screenWidth
         } else if hasDetailView {
-            // 详情页显示时，sidebar移到左边屏幕外
+            // When the detail page is visible, move the sidebar off the left edge
             return -sidebarWidth
         } else {
-            // Sidebar可见，停靠在屏幕右侧
-            // 从左边缘开始计算：需要偏移 (screenWidth - sidebarWidth) 才能靠右
+            // Sidebar visible, docked to the right side of the screen
+            // Calculated from the left edge: offset by (screenWidth - sidebarWidth) to align right
             return screenWidth - sidebarWidth + dragOffset
         }
     }

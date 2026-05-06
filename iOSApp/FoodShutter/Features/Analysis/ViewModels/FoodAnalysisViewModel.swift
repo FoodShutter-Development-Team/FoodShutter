@@ -2,200 +2,147 @@
 //  FoodAnalysisViewModel.swift
 //  FoodShutter
 //
-//  主 ViewModel：食物分析流程 + 云端保存（Supabase 版）
+//  两阶段异步分析流程：上传 → 等待 → 菜品就绪 → 营养完成
 //
 
 import SwiftUI
 import UIKit
-import Combine
 
-/// 分析流程状态
-enum AnalysisState {
+// MARK: - State
+
+enum AnalysisState: Equatable {
     case idle
-    case uploadingImage
-    case analyzingFood
-    case transformingData
-    case fetchingAdvice
-    case completed
-    case failed(Error)
-}
+    case uploading
+    case awaitingDishes
+    case dishesReady
+    case computingNutrition
+    case complete
+    case failed(String)
 
-extension AnalysisState: Equatable {
     static func == (lhs: AnalysisState, rhs: AnalysisState) -> Bool {
         switch (lhs, rhs) {
-        case (.idle, .idle), (.uploadingImage, .uploadingImage),
-             (.analyzingFood, .analyzingFood), (.transformingData, .transformingData),
-             (.fetchingAdvice, .fetchingAdvice), (.completed, .completed):
+        case (.idle, .idle), (.uploading, .uploading),
+             (.awaitingDishes, .awaitingDishes), (.dishesReady, .dishesReady),
+             (.computingNutrition, .computingNutrition), (.complete, .complete):
             return true
         case let (.failed(l), .failed(r)):
-            let le = l as NSError, re = r as NSError
-            return le.domain == re.domain && le.code == re.code
-                && type(of: l) == type(of: r)
+            return l == r
         default:
             return false
         }
     }
-}
 
-enum AnalysisError: Error, LocalizedError {
-    case noFoodDetected
-    case partialSuccess(String)
-
-    var errorDescription: String? {
+    var loadingMessage: String {
         switch self {
-        case .noFoodDetected:
-            return "No food detected in the image. Please try again with a clearer photo."
-        case .partialSuccess(let message):
-            return message
+        case .uploading:           return "Uploading photo..."
+        case .awaitingDishes:      return "Identifying dishes..."
+        case .computingNutrition:  return "Analyzing nutrition..."
+        default:                   return "Relax a Bit :)"
+        }
+    }
+
+    var isLoading: Bool {
+        switch self {
+        case .uploading, .awaitingDishes, .computingNutrition: return true
+        default: return false
         }
     }
 }
+
+// MARK: - ViewModel
 
 @MainActor
-class FoodAnalysisViewModel: ObservableObject {
-    // MARK: - Published State
-    @Published var state:         AnalysisState = .idle
-    @Published var dishes:        [Dish]        = []
-    @Published var dietaryAdvice: DietaryAdviceResult?
-    @Published var errorMessage:  String?
+final class FoodAnalysisViewModel: ObservableObject {
+    @Published var state:       AnalysisState = .idle
+    @Published var dishes:      [Dish]        = []
+    @Published var mealAdvice:  MealAdviceRow?
+    @Published var newTrophies: [Trophy]      = []
 
-    // MARK: - Private
-    private let foodAnalyzer          = GeminiFoodImageAnalyzer()
-    private let dietaryAdvisor        = GeminiDietaryAdvisor()
-    private var currentAnalysisResult: FoodAnalysisResult?
-    private var capturedImage:         UIImage?
+    private var currentMealId: UUID?
 
-    // MARK: - Analysis Flow
+    // MARK: - Main Entry Point
 
     func analyzeFood(from image: UIImage) async {
-        self.capturedImage = image
+        reset()
 
         do {
-            state = .uploadingImage
-            let tempURL = try ModelTransformers.saveImageToTempFile(image)
+            // Step 1: Compress and upload
+            state = .uploading
+            let jpegData = try ModelTransformers.imageToJPEGData(image)
+            let mealType = MealType.determine()
+            let mealId   = try await BackendAPIClient.shared.uploadMeal(imageData: jpegData, mealType: mealType)
+            currentMealId = mealId
 
-            state = .analyzingFood
-            let analysisResult = try await foodAnalyzer.analyzeFoodImage(imageURL: tempURL)
+            // Step 2: Observe async pipeline
+            state = .awaitingDishes
+            let observer = MealStatusObserver(mealId: mealId)
 
-            guard !analysisResult.dishes.isEmpty else {
-                throw AnalysisError.noFoodDetected
+            for await event in observer.stream() {
+                switch event {
+                case .dishesReady:
+                    await handleDishesReady(mealId: mealId)
+
+                case .complete:
+                    await handleComplete(mealId: mealId)
+                    return
+
+                case .failed(let reason):
+                    state = .failed(reason ?? "Analysis failed. Please try again.")
+                    return
+
+                case .timeout:
+                    state = .failed("Analysis timed out. Please try again.")
+                    return
+                }
             }
-            currentAnalysisResult = analysisResult
 
-            state = .transformingData
-            dishes = ModelTransformers.transformToDishes(analysisResult)
-
-            state = .fetchingAdvice
-            await fetchDietaryAdvice()
-
-            state = .completed
-            try? FileManager.default.removeItem(at: tempURL)
-
-        } catch let error as FoodImageAnalyzerError {
-            state = .failed(error)
-            errorMessage = "Food analysis failed: \(error.localizedDescription)"
-        } catch let error as DietaryAdvisorError {
-            state = .completed
-            errorMessage = "Dietary advice unavailable: \(error.localizedDescription)"
-        } catch let error as AnalysisError {
-            state = .failed(error)
-            errorMessage = error.localizedDescription
+        } catch let error as BackendAPIError {
+            state = .failed(error.localizedDescription)
         } catch {
-            state = .failed(error)
-            errorMessage = "Unexpected error: \(error.localizedDescription)"
+            state = .failed("Unexpected error: \(error.localizedDescription)")
         }
     }
 
-    // MARK: - Private Helpers
+    // MARK: - Phase Handlers
 
-    private func fetchDietaryAdvice() async {
-        guard let analysisResult = currentAnalysisResult else { return }
+    private func handleDishesReady(mealId: UUID) async {
         do {
-            // 从 Supabase 获取用户资料
-            let userProfile: UserNutritionProfile
-            if let row = try? await ProfileRepository.shared.getProfile() {
-                userProfile = row.toUserNutritionProfile()
-            } else {
-                userProfile = UserNutritionProfile(
-                    weight: 70, height: 170, age: 25, gender: "Male",
-                    activityLevel: "Moderate", goals: [], preference: "", other: ""
-                )
-            }
-
-            // 获取近期营养均值
-            let nutritionAvg = await MealRepository.shared.getNutritionAverage()
-
-            let adviceInput = ModelTransformers.createDietaryAdviceInput(
-                from: analysisResult,
-                userProfile: userProfile,
-                nutritionAverage: nutritionAvg
-            )
-            dietaryAdvice = try await dietaryAdvisor.getDietaryAdvice(input: adviceInput)
-            print("✓ Dietary advice received")
+            let rows = try await MealRepository.shared.fetchDishesPhase1(mealId: mealId)
+            dishes = rows.map { $0.toDish() }
+            state  = .dishesReady
         } catch {
-            print("⚠️ Failed to fetch dietary advice: \(error.localizedDescription)")
+            print("⚠️ Phase 1 fetch failed: \(error)")
         }
     }
 
-    // MARK: - Public
+    private func handleComplete(mealId: UUID) async {
+        state = .computingNutrition
+        do {
+            let rows = try await MealRepository.shared.fetchDishesPhase2(mealId: mealId)
+            dishes    = rows.map { $0.toDish() }
+            mealAdvice = try? await MealRepository.shared.fetchAdvice(mealId: mealId)
+        } catch {
+            print("⚠️ Phase 2 fetch failed: \(error)")
+        }
 
-    func reset() {
-        state                = .idle
-        dishes               = []
-        dietaryAdvice        = nil
-        errorMessage         = nil
-        currentAnalysisResult = nil
+        newTrophies = await TrophyRepository.shared.checkForNewTrophies()
+        state = .complete
     }
+
+    // MARK: - Retry
 
     func retry(with image: UIImage) async {
         reset()
         await analyzeFood(from: image)
     }
 
-    // MARK: - Meal Persistence（异步版本）
+    // MARK: - Reset
 
-    /// 保存餐食并检查奖杯（async，由调用者用 Task 包装）
-    func saveMealIfNeeded() async -> [Trophy] {
-        guard !dishes.isEmpty else {
-            print("⚠️ No dishes to save")
-            return []
-        }
-
-        let mealType = MealType.determine()
-
-        do {
-            _ = try await MealRepository.shared.saveMeal(
-                timestamp:     Date(),
-                mealType:      mealType,
-                photo:         capturedImage,
-                dishes:        dishes,
-                dietaryAdvice: dietaryAdvice
-            )
-            print("✓ Meal saved to Supabase: \(mealType.rawValue)")
-
-            let newTrophies = await TrophyRepository.shared.checkForNewTrophies()
-            if !newTrophies.isEmpty {
-                print("🏆 \(newTrophies.count) new trophy(ies) earned!")
-            }
-            return newTrophies
-        } catch {
-            print("⚠️ Failed to save meal: \(error.localizedDescription)")
-            return []
-        }
-    }
-
-    // MARK: - Cleanup
-
-    deinit { cleanupTempFiles() }
-
-    nonisolated private func cleanupTempFiles() {
-        let tempDir = FileManager.default.temporaryDirectory
-        if let files = try? FileManager.default.contentsOfDirectory(
-            at: tempDir, includingPropertiesForKeys: nil
-        ) {
-            for file in files where file.lastPathComponent.hasPrefix("food_") {
-                try? FileManager.default.removeItem(at: file)
-            }
-        }
+    func reset() {
+        state         = .idle
+        dishes        = []
+        mealAdvice    = nil
+        newTrophies   = []
+        currentMealId = nil
     }
 }

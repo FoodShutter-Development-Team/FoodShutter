@@ -2,7 +2,7 @@
 //  BackendAPIClient.swift
 //  FoodShutter
 //
-//  统一的后端 API 客户端，携带 Supabase JWT 进行鉴权
+//  Backend API client that authenticates requests with a Supabase JWT
 //
 
 import Foundation
@@ -12,10 +12,8 @@ final class BackendAPIClient {
 
     // MARK: - Configuration
 
-    /// 后端 Base URL（上线前替换为你的正式地址）
     static let baseURL = "https://your-backend.example.com/api"
-
-    static let shared = BackendAPIClient()
+    static let shared  = BackendAPIClient()
 
     private let session: URLSession
 
@@ -23,68 +21,44 @@ final class BackendAPIClient {
         self.session = session
     }
 
-    // MARK: - Public: Food Image Analysis
+    // MARK: - Upload Meal
 
-    /// 将图片编码为 base64 发送到后端，返回食物分析结果
-    func analyzeFoodImage(imageURL: URL) async throws -> FoodAnalysisResult {
-        guard let imageData = try? Data(contentsOf: imageURL) else {
-            throw BackendAPIError.fileReadError
-        }
-
-        let base64String = imageData.base64EncodedString()
-        let mimeType = getMimeType(for: imageURL)
-
-        let body: [String: Any] = [
-            "imageBase64": base64String,
-            "mimeType": mimeType
-        ]
-
-        let data = try await post(endpoint: "/analyze-food", body: body)
-        return try JSONDecoder().decode(FoodAnalysisResult.self, from: data)
-    }
-
-    // MARK: - Public: Dietary Advice
-
-    /// 发送餐食数据到后端，获取饮食建议
-    func getDietaryAdvice(input: DietaryAdviceInput) async throws -> DietaryAdviceResult {
-        let encoder = JSONEncoder()
-        let inputData = try encoder.encode(input)
-        let inputDict = try JSONSerialization.jsonObject(with: inputData) as? [String: Any] ?? [:]
-
-        let data = try await post(endpoint: "/dietary-advice", body: inputDict)
-        return try JSONDecoder().decode(DietaryAdviceResult.self, from: data)
-    }
-
-    // MARK: - Public: Nutrition Plan
-
-    /// 发送用户资料到后端，生成个性化营养目标
-    func generateNutritionTargets(profile: UserNutritionProfile) async throws -> NutritionTargetsResult {
-        let encoder = JSONEncoder()
-        let profileData = try encoder.encode(profile)
-        let profileDict = try JSONSerialization.jsonObject(with: profileData) as? [String: Any] ?? [:]
-
-        let data = try await post(endpoint: "/nutrition-plan", body: profileDict)
-        return try JSONDecoder().decode(NutritionTargetsResult.self, from: data)
-    }
-
-    // MARK: - Private: Networking
-
-    private func post(endpoint: String, body: [String: Any]) async throws -> Data {
-        guard let url = URL(string: BackendAPIClient.baseURL + endpoint) else {
+    /// POST /analyze（multipart）→ job_id (= meal_id)
+    func uploadMeal(imageData: Data, mealType: MealType) async throws -> UUID {
+        guard let url = URL(string: BackendAPIClient.baseURL + "/analyze") else {
             throw BackendAPIError.invalidURL
         }
 
-        // 获取 Supabase access token
+        let data = try await performMultipart(
+            url: url,
+            imageData: imageData,
+            mealType: mealType,
+            retryOnUnauthorized: true
+        )
+
+        let response = try JSONDecoder().decode(AnalyzeResponse.self, from: data)
+        return response.jobId
+    }
+
+    // MARK: - Private: Multipart Request
+
+    private func performMultipart(
+        url: URL,
+        imageData: Data,
+        mealType: MealType,
+        retryOnUnauthorized: Bool
+    ) async throws -> Data {
         guard let accessToken = try await getAccessToken() else {
             throw BackendAPIError.unauthorized
         }
 
+        let boundary = UUID().uuidString
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(accessToken)", forHTTPHeaderField: "Authorization")
-        request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        request.timeoutInterval = 120  // 图片分析可能较慢
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 30
+        request.httpBody = buildMultipartBody(imageData: imageData, mealType: mealType, boundary: boundary)
 
         let (data, response) = try await session.data(for: request)
 
@@ -96,11 +70,19 @@ final class BackendAPIClient {
         case 200...299:
             return data
         case 401:
-            throw BackendAPIError.unauthorized
-        case 429:
-            throw BackendAPIError.rateLimited
+            guard retryOnUnauthorized else { throw BackendAPIError.unauthorized }
+            try await supabase.auth.refreshSession()
+            return try await performMultipart(
+                url: url,
+                imageData: imageData,
+                mealType: mealType,
+                retryOnUnauthorized: false
+            )
+        case 413:
+            throw BackendAPIError.imageTooLarge
+        case 415:
+            throw BackendAPIError.unsupportedFormat
         default:
-            // 尝试解析后端错误信息
             if let errorBody = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let message = errorBody["error"] as? String {
                 throw BackendAPIError.serverError(message: message)
@@ -109,45 +91,82 @@ final class BackendAPIClient {
         }
     }
 
+    // MARK: - Private: Helpers
+
     private func getAccessToken() async throws -> String? {
         return try await supabase.auth.session.accessToken
     }
 
-    private func getMimeType(for url: URL) -> String {
-        let ext = url.pathExtension.lowercased()
-        switch ext {
-        case "png":  return "image/png"
-        case "heic": return "image/heic"
-        case "webp": return "image/webp"
-        default:     return "image/jpeg"
-        }
+    private func buildMultipartBody(imageData: Data, mealType: MealType, boundary: String) -> Data {
+        var body = Data()
+        let crlf = "\r\n"
+
+        // meal_type field
+        body += "--\(boundary)\(crlf)".utf8Data
+        body += "Content-Disposition: form-data; name=\"meal_type\"\(crlf)\(crlf)".utf8Data
+        body += mealType.rawValue.utf8Data
+        body += crlf.utf8Data
+
+        // image file field
+        body += "--\(boundary)\(crlf)".utf8Data
+        body += "Content-Disposition: form-data; name=\"image\"; filename=\"meal.jpg\"\(crlf)".utf8Data
+        body += "Content-Type: image/jpeg\(crlf)\(crlf)".utf8Data
+        body += imageData
+        body += crlf.utf8Data
+
+        body += "--\(boundary)--\(crlf)".utf8Data
+        return body
+    }
+}
+
+// MARK: - Response Models
+
+private struct AnalyzeResponse: Decodable {
+    let jobId: UUID
+
+    enum CodingKeys: String, CodingKey {
+        case jobId = "job_id"
     }
 }
 
 // MARK: - Error Types
 
 enum BackendAPIError: Error, LocalizedError {
-    case fileReadError
     case invalidURL
     case unauthorized
-    case rateLimited
+    case imageTooLarge
+    case unsupportedFormat
     case requestFailed
     case serverError(message: String)
 
     var errorDescription: String? {
         switch self {
-        case .fileReadError:
-            return "Unable to read image file"
         case .invalidURL:
             return "Invalid backend URL"
         case .unauthorized:
             return "Authentication failed. Please sign in again."
-        case .rateLimited:
-            return "Too many requests. Please try again later."
+        case .imageTooLarge:
+            return "Image exceeds 20 MB limit. Please use a smaller photo."
+        case .unsupportedFormat:
+            return "Unsupported image format. Please use JPEG, PNG, HEIC, or WebP."
         case .requestFailed:
-            return "Server request failed"
+            return "Server request failed. Please try again."
         case .serverError(let message):
             return "Server error: \(message)"
         }
     }
+}
+
+// MARK: - Data Helper
+
+private extension Data {
+    static func += (lhs: inout Data, rhs: Data) {
+        lhs.append(rhs)
+    }
+
+    var utf8Data: Data { self }
+}
+
+private extension String {
+    var utf8Data: Data { Data(utf8) }
 }

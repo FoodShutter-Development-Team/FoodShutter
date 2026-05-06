@@ -2,7 +2,7 @@
 //  SupabaseClient.swift
 //  FoodShutter
 //
-//  Supabase 客户端单例配置
+//  Supabase client singleton configuration
 //
 
 import Foundation
