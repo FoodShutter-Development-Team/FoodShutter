@@ -1,1 +1,15 @@
 .DS_Store
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+
+# Runtime artifacts
+results/
+Backend/dataset/images/
+*.log
