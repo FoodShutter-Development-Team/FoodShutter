@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  
+  --color-primary-500: #22c55e;
+  --color-primary-600: #16a34a;
+  
+  --color-background-light: #f0fdf4;
+  --color-background-dark: #000000;
+  --color-surface-light: #ffffff;
+  --color-surface-dark: #1c1c1e;
+  
+  --color-foreground-light: #064e3b;
+  --color-foreground-dark: #ffffff;
+  --color-secondary-light: #166534;
+  --color-secondary-dark: #98989d;
+  
+  --radius-ios-sm: 8px;
+  --radius-ios: 12px;
+  --radius-ios-lg: 16px;
+  --radius-ios-xl: 20px;
+}
+
+@layer base {
+  :root {
+    --background: var(--color-background-light);
+    --foreground: var(--color-foreground-light);
+    --surface: var(--color-surface-light);
+    --text-primary: var(--color-foreground-light);
+    --text-secondary: var(--color-secondary-light);
+    --divider: rgba(22, 163, 74, 0.2);
+    
+    --accent-glow-primary: rgba(74, 222, 128, 0.5); /* bright light green */
+    --accent-glow-secondary: rgba(45, 212, 191, 0.5); /* bright cyan/teal */
+  }
+
+  .dark {
+    --background: var(--color-background-dark);
+    --foreground: var(--color-foreground-dark);
+    --surface: var(--color-surface-dark);
+    --text-primary: var(--color-foreground-dark);
+    --text-secondary: var(--color-secondary-dark);
+    --divider: rgba(84, 84, 88, 0.65);
+    
+    --accent-glow-primary: rgba(168, 85, 247, 0.5); /* bright purple */
+    --accent-glow-secondary: rgba(59, 130, 246, 0.5); /* bright blue */
+  }
+
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
