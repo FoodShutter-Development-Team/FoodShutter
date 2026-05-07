@@ -12,4 +12,18 @@ __pycache__/
 # Runtime artifacts
 results/
 Backend/dataset/images/
+Backend/dataset/diff_angle/
 *.log
+
+# Coverage artifacts
+.coverage
+*.coverage
+*coverage_report.png
+coverage-dashboard.*
+
+# Claude Code local settings
+.claude/
+
+# Office / presentation files
+*.pptx
+*.ppt

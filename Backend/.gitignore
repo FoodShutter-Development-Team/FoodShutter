@@ -1,3 +1,6 @@
+# Local one-off scripts
+scripts/_*.py
+
 # Python-generated files
 __pycache__/
 *.py[oc]
