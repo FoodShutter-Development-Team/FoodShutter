@@ -1,0 +1,9 @@
+# Supabase Configuration
+project_id = "foodshutter-local"
+
+[api]
+enabled = true
+port = 54321
+
+[functions]
+# Automatically managed by Supabase CLI
