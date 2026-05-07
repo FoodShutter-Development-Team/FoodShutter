@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-/// 营养总结视图
+/// Nutrition summary view
 struct NutritionSummaryView: View {
     let ingredients: [FoodIngredient]
     let title: String
@@ -25,7 +25,7 @@ struct NutritionSummaryView: View {
                     .padding(.bottom)
             }
 
-            // 统计信息
+            // Stats
             HStack(spacing: 30) {
                 VStack(alignment: .leading,spacing: 4) {
                     Text(String(format: "%.0f g", summaryData.totalWeight))

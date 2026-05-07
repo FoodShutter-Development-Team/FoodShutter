@@ -2,85 +2,78 @@
 //  Dish.swift
 //  FoodShutter
 //
-//  Created by Claude on 2025.
-//
 
 import SwiftUI
 
-/// 菜品模型 - 包含多个食材成分
 struct Dish: Identifiable, Equatable {
-    let id = UUID()
-    let name: String              // 菜品名称
-    let icon: String              // Emoji 图标
-    var ingredients: [FoodIngredient]  // 食材列表
+    let id: UUID
+    let name: String
+    let icon: String
+    var ingredients: [FoodIngredient]
+    var bbox: [Double]?
+    var container: String?
+    var portionSize: String?
+    var estimatedGrams: Double?
+    var confidence: String?
 
-    // MARK: - 计算总营养值
-
-    /// 总重量（克）
-    var totalWeight: Double {
-        ingredients.reduce(0) { $0 + $1.weight }
+    init(
+        id: UUID = UUID(),
+        name: String,
+        icon: String = "🍽️",
+        ingredients: [FoodIngredient] = [],
+        bbox: [Double]? = nil,
+        container: String? = nil,
+        portionSize: String? = nil,
+        estimatedGrams: Double? = nil,
+        confidence: String? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.icon = icon
+        self.ingredients = ingredients
+        self.bbox = bbox
+        self.container = container
+        self.portionSize = portionSize
+        self.estimatedGrams = estimatedGrams
+        self.confidence = confidence
     }
 
-    /// 总卡路里
-    var totalCalories: Double {
-        ingredients.reduce(0) { $0 + $1.calories }
-    }
+    // MARK: - Computed Nutrition (aggregated from ingredients)
 
-    /// 总蛋白质重量（克）
-    var totalProtein: Double {
-        ingredients.reduce(0) { $0 + $1.proteinWeight }
-    }
+    var totalWeight: Double { ingredients.reduce(0) { $0 + $1.weightGrams } }
+    var totalCalories: Double { ingredients.reduce(0) { $0 + $1.calories } }
+    var totalProtein: Double { ingredients.reduce(0) { $0 + $1.proteinG } }
+    var totalFat: Double { ingredients.reduce(0) { $0 + $1.fatG } }
+    var totalCarbohydrate: Double { ingredients.reduce(0) { $0 + $1.carbG } }
 
-    /// 总脂肪重量（克）
-    var totalFat: Double {
-        ingredients.reduce(0) { $0 + $1.fatWeight }
-    }
+    private var totalMacros: Double { totalProtein + totalFat + totalCarbohydrate }
 
-    /// 总碳水化合物重量（克）
-    var totalCarbohydrate: Double {
-        ingredients.reduce(0) { $0 + $1.carbohydrateWeight }
-    }
+    var available: Double { totalMacros }
 
-    /// 总营养素重量（用于计算百分比）
-    var totalNutrients: Double {
-        totalProtein + totalFat + totalCarbohydrate
-    }
-
-    // MARK: - 营养素百分比（用于显示比例条）
-
-    /// 蛋白质百分比 (0-100)
     var proteinPercent: Double {
-        guard totalNutrients > 0 else { return 0 }
-        return (totalProtein / totalNutrients) * 100
+        guard totalMacros > 0 else { return 0 }
+        return totalProtein / totalMacros * 100
     }
 
-    /// 脂肪百分比 (0-100)
     var fatPercent: Double {
-        guard totalNutrients > 0 else { return 0 }
-        return (totalFat / totalNutrients) * 100
+        guard totalMacros > 0 else { return 0 }
+        return totalFat / totalMacros * 100
     }
 
-    /// 碳水化合物百分比 (0-100)
     var carbohydratePercent: Double {
-        guard totalNutrients > 0 else { return 0 }
-        return (totalCarbohydrate / totalNutrients) * 100
-    }
-
-    /// 可用百分比总和（用于比例条宽度计算）
-    var available: Double {
-        carbohydratePercent + proteinPercent + fatPercent
+        guard totalMacros > 0 else { return 0 }
+        return totalCarbohydrate / totalMacros * 100
     }
 }
 
 extension Dish {
     static func == (lhs: Dish, rhs: Dish) -> Bool {
-        lhs.name == rhs.name &&
-        lhs.icon == rhs.icon &&
-        lhs.ingredients == rhs.ingredients
+        lhs.id == rhs.id
     }
 }
 
-// MARK: - 示例数据
+// MARK: - Sample Data
+
 extension Dish {
     static let sampleData: [Dish] = [
         Dish(
@@ -95,10 +88,11 @@ extension Dish {
                 FoodIngredient(
                     name: "Steamed White Rice",
                     icon: "🍚",
-                    weight: 150,
-                    proteinPercent: 2.6,
-                    fatPercent: 0.3,
-                    carbohydratePercent: 25.9
+                    weightGrams: 150,
+                    calories: 195,
+                    proteinG: 4.0,
+                    fatG: 0.3,
+                    carbG: 43.0
                 )
             ]
         )

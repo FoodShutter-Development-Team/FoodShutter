@@ -2,7 +2,7 @@
 //  HistorySidebarView.swift
 //  FoodShutter
 //
-//  左滑抽屉式历史记录面板（Supabase 云端版）
+//  Left-sliding drawer panel for meal history (Supabase cloud version)
 //
 
 import SwiftUI
@@ -18,7 +18,7 @@ struct HistorySidebarView: View {
             let sidebarWidth = screenWidth * 0.85
 
             ZStack(alignment: .leading) {
-                // Layer 1: 详情视图
+                // Layer 1: Detail view
                 if let meal = selectedMeal {
                     HistoryDishListView(
                         meal: meal,
@@ -33,7 +33,7 @@ struct HistorySidebarView: View {
                     .transition(.move(edge: .leading))
                 }
 
-                // Layer 2: 侧边栏主体
+                // Layer 2: Sidebar main body
                 VStack(alignment: .leading, spacing: 0) {
                     Text("Meal History")
                         .font(.system(.title, design: .serif, weight: .bold))

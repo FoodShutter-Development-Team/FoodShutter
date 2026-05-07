@@ -2,8 +2,6 @@
 //  AnalysisContainerView.swift
 //  FoodShutter
 //
-//  Main container for food analysis results with loading state
-//
 
 import SwiftUI
 
@@ -16,30 +14,16 @@ struct AnalysisResultView: View {
             Color.backGround
 
             switch viewModel.state {
-            case .idle, .uploadingImage, .analyzingFood, .transformingData:
-                // Loading view
-                VStack {
-                    Spacer()
-                    Text("Relax a Bit :)")
-                        .foregroundStyle(.mainText)
-                        .font(.system(.largeTitle, design: .serif, weight: .heavy))
-                        .padding()
-                    TypingAnimationText()
-                        .frame(height: 20)
-                    Spacer()
-                }
-                .padding()
 
-            case .fetchingAdvice, .completed:
-                // Show dish list (advice loading in background)
-                DishListView()
+            case .idle, .uploading, .awaitingDishes:
+                loadingView(message: viewModel.state.loadingMessage)
 
-            case .failed(let error):
-                // Error view with retry
-                ErrorView(error: error) {
-                    Task {
-                        await viewModel.analyzeFood(from: capturedImage)
-                    }
+            case .dishesReady, .computingNutrition, .complete:
+                DishListView(capturedImage: capturedImage)
+
+            case .failed(let message):
+                ErrorView(error: AnalysisError(message: message)) {
+                    Task { await viewModel.analyzeFood(from: capturedImage) }
                 }
             }
         }
@@ -48,11 +32,32 @@ struct AnalysisResultView: View {
             await viewModel.analyzeFood(from: capturedImage)
         }
     }
+
+    private func loadingView(message: String) -> some View {
+        VStack {
+            Spacer()
+            Text(message)
+                .foregroundStyle(.mainText)
+                .font(.system(.largeTitle, design: .serif, weight: .heavy))
+                .padding()
+                .multilineTextAlignment(.center)
+            TypingAnimationText()
+                .frame(height: 20)
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+// MARK: - Bridging Error Type
+
+struct AnalysisError: LocalizedError {
+    let message: String
+    var errorDescription: String? { message }
 }
 
 #Preview {
     @Previewable @StateObject var viewModel = FoodAnalysisViewModel()
-
     AnalysisResultView(capturedImage: UIImage())
         .environmentObject(viewModel)
 }

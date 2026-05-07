@@ -2,7 +2,7 @@
 //  SettingListView.swift
 //  FoodShutter
 //
-//  设置列表（含用户账户卡片 + 登出 + 删除账户）
+//  Settings list (includes user account card, sign out, and delete account)
 //
 
 import SwiftUI
@@ -21,9 +21,9 @@ struct SettingListView: View {
     var body: some View {
         NavigationStack {
             List {
-                // MARK: - 账户信息区块
+                // MARK: - Account Info Section
                 Section {
-                    // 邮箱显示
+                    // Email display
                     HStack(spacing: 12) {
                         Image(systemName: "person.circle.fill")
                             .font(.system(size: 36))
@@ -42,9 +42,9 @@ struct SettingListView: View {
                     .padding(.vertical, 4)
                 }
 
-                // MARK: - 功能导航
+                // MARK: - Navigation
                 Section {
-                    // 修改资料
+                    // Edit profile
                     NavigationLink {
                         InfoView(
                             profile:         cachedProfile,
@@ -61,9 +61,9 @@ struct SettingListView: View {
 
                 }
 
-                // MARK: - 账户操作
+                // MARK: - Account Actions
                 Section {
-                    // 登出
+                    // Sign out
                     Button {
                         showSignOutConfirm = true
                     } label: {
@@ -76,7 +76,7 @@ struct SettingListView: View {
                     }
                     .listRowBackground(Color.backGround)
 
-                    // 删除账户（App Store 要求）
+                    // Delete account (required by App Store guidelines)
                     Button {
                         showDeleteConfirm = true
                     } label: {
@@ -107,7 +107,7 @@ struct SettingListView: View {
         .task {
             loadProfile()
         }
-        // 登出确认
+        // Sign-out confirmation
         .confirmationDialog("Sign Out", isPresented: $showSignOutConfirm, titleVisibility: .visible) {
             Button("Sign Out", role: .destructive) {
                 Task { await signOut() }
@@ -116,7 +116,7 @@ struct SettingListView: View {
         } message: {
             Text("You will need to sign in again.")
         }
-        // 删除账户确认
+        // Delete account confirmation
         .confirmationDialog("Delete Account", isPresented: $showDeleteConfirm, titleVisibility: .visible) {
             Button("Delete Account", role: .destructive) {
                 Task { await deleteAccount() }

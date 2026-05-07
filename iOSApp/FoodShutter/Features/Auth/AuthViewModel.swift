@@ -2,7 +2,7 @@
 //  AuthViewModel.swift
 //  FoodShutter
 //
-//  邮箱登录 / 注册 + Apple Sign-In ViewModel
+//  Email sign-in / sign-up + Apple Sign-In ViewModel
 //
 
 import AuthenticationServices
@@ -11,13 +11,15 @@ import Foundation
 
 @MainActor
 class AuthViewModel: ObservableObject {
-    @Published var email:        String = ""
-    @Published var password:     String = ""
-    @Published var isLoading:    Bool   = false
-    @Published var errorMessage: String? = nil
-    @Published var isSignUp:     Bool   = false
+    @Published var email:          String = ""
+    @Published var password:       String = ""
+    @Published var isLoading:      Bool   = false
+    @Published var errorMessage:   String? = nil
+    @Published var isSignUp:       Bool   = false
+    @Published var magicLinkMode:  Bool   = false
+    @Published var magicLinkSent:  Bool   = false
 
-    /// Apple Sign-In 用的 nonce
+    /// Nonce used for Apple Sign-In
     var currentNonce: String?
 
     // MARK: - Email Auth
@@ -44,13 +46,43 @@ class AuthViewModel: ObservableObject {
         errorMessage = nil
     }
 
+    // MARK: - Magic Link
+
+    func enterMagicLinkMode() {
+        magicLinkMode = true
+        magicLinkSent = false
+        errorMessage  = nil
+    }
+
+    func exitMagicLinkMode() {
+        magicLinkMode = false
+        magicLinkSent = false
+        errorMessage  = nil
+    }
+
+    func sendMagicLink() async {
+        guard !email.trimmingCharacters(in: .whitespaces).isEmpty else {
+            errorMessage = "Please enter your email address"
+            return
+        }
+        isLoading    = true
+        errorMessage = nil
+        defer { isLoading = false }
+        do {
+            try await AuthManager.shared.sendMagicLink(email: email)
+            magicLinkSent = true
+        } catch {
+            errorMessage = localizedMessage(for: error)
+        }
+    }
+
     // MARK: - Apple Sign-In
 
-    /// 返回 hashed nonce 用于 Apple request.nonce，同时保存 raw nonce
+    /// Returns the hashed nonce for Apple's request.nonce and saves the raw nonce for later use
     func prepareAppleSignIn() -> String {
         let raw = AuthManager.shared.generateRawNonce()
-        currentNonce = raw  // 保存原始 nonce，后续传给 Supabase
-        return AuthManager.shared.sha256(raw)  // 返回 hash 给 Apple
+        currentNonce = raw  // Save raw nonce to pass to Supabase later
+        return AuthManager.shared.sha256(raw)  // Return the hash to Apple
     }
 
     func handleAppleSignIn(result: Result<ASAuthorization, Error>) async {

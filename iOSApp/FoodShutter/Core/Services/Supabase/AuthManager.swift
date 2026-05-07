@@ -2,7 +2,7 @@
 //  AuthManager.swift
 //  FoodShutter
 //
-//  Supabase 认证状态管理（Email + Apple Sign-In）
+//  Supabase authentication state management (Email + Apple Sign-In)
 //
 
 import AuthenticationServices
@@ -17,14 +17,14 @@ class AuthManager: ObservableObject {
 
     @Published var currentUser: User? = nil
 
-    /// 初始 session 是否已解析（用于 AppState 等待启动完成）
+    /// Whether the initial session has been resolved (used by AppState to wait for startup completion)
     @Published var initialSessionResolved = false
 
     private init() {}
 
     // MARK: - Auth Lifecycle
 
-    /// 启动监听（唯一入口，处理 initialSession + 后续事件）
+    /// Start listening for auth state changes (single entry point, handles initialSession + subsequent events)
     func startListening() {
         Task {
             for await (event, session) in supabase.auth.authStateChanges {
@@ -69,36 +69,44 @@ class AuthManager: ObservableObject {
         currentUser = nil
     }
 
-    /// 发送密码重置邮件
+    /// Send a password reset email
     func sendPasswordReset(email: String) async throws {
         try await supabase.auth.resetPasswordForEmail(email)
     }
 
+    /// Send a magic link to the given email (OTP sign-in)
+    func sendMagicLink(email: String) async throws {
+        try await supabase.auth.signInWithOTP(
+            email: email,
+            redirectTo: URL(string: "foodshutter://auth-callback")
+        )
+    }
+
     // MARK: - Apple Sign-In
 
-    /// 生成随机 nonce 字符串（原始值）
+    /// Generate a random nonce string (raw value)
     func generateRawNonce() -> String {
-        // 32 字节随机数据，编码为 hex
+        // 32 bytes of random data, encoded as hex
         var bytes = [UInt8](repeating: 0, count: 32)
         _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
         return bytes.map { String(format: "%02x", $0) }.joined()
     }
 
-    /// 对原始 nonce 做 SHA256，用于 Apple 的 request.nonce
+    /// SHA256-hash the raw nonce for use as Apple's request.nonce
     func sha256(_ input: String) -> String {
         let inputData = Data(input.utf8)
         let hashed = SHA256.hash(data: inputData)
         return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
 
-    /// 使用 Apple credential + 原始 nonce 登录 Supabase
+    /// Sign in to Supabase using an Apple credential and the raw nonce
     func signInWithApple(credential: ASAuthorizationAppleIDCredential, rawNonce: String) async throws {
         guard let identityTokenData = credential.identityToken,
               let idToken = String(data: identityTokenData, encoding: .utf8) else {
             throw AuthError.missingAppleToken
         }
 
-        // 传 rawNonce 给 Supabase，Supabase 会自行 hash 后与 id_token 中的 nonce 比对
+        // Pass rawNonce to Supabase; Supabase will hash it and compare against the nonce in the id_token
         let session = try await supabase.auth.signInWithIdToken(
             credentials: .init(provider: .apple, idToken: idToken, nonce: rawNonce)
         )
@@ -107,7 +115,7 @@ class AuthManager: ObservableObject {
 
     // MARK: - Account Management
 
-    /// 删除账户：先删除 profiles 记录（级联删除所有数据），再登出
+    /// Delete account: removes the profiles record (cascading all data), then signs out
     func deleteAccount() async throws {
         guard let userId = currentUser?.id else { return }
         try await supabase

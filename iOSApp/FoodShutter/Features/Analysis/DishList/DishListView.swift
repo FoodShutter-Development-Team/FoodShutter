@@ -2,33 +2,27 @@
 //  DishListView.swift
 //  FoodShutter
 //
-//  菜品列表视图 - 显示所有菜品并支持导航到详情
+//  菜品列表视图 - Phase 1 先展示菜名，Phase 2 补充营养数据
 //
 
 import SwiftUI
 
 struct DishListView: View {
+    let capturedImage: UIImage
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var viewModel: FoodAnalysisViewModel
     @State private var animatedDishes:     [Dish]   = []
     @State private var showSuggestion:     Bool     = false
     @State private var selectedDish:       Dish?    = nil
-    @State private var isSaving:           Bool     = false
     @Namespace private var heroAnimationNamespace
 
-    // Trophy popup state
-    @State private var earnedTrophies:    [Trophy] = []
-    @State private var showTrophyPopup:   Bool     = false
-    @State private var currentTrophyIndex: Int     = 0
-
-    private var isPreview: Bool {
-        ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
-    }
+    @State private var currentTrophyIndex: Int  = 0
+    @State private var showTrophyPopup:    Bool = false
 
     var body: some View {
         ZStack {
-            if selectedDish == nil {
-                ScrollView {
+            ScrollView {
                     VStack(spacing: 20) {
                         Spacer().frame(height: 60)
 
@@ -39,7 +33,7 @@ struct DishListView: View {
                         .padding(.horizontal, 10)
 
                         VStack(spacing: 10) {
-                            ForEach(Array(animatedDishes.enumerated()), id: \.element.id) { index, dish in
+                            ForEach(Array(animatedDishes.enumerated()), id: \.element.id) { _, dish in
                                 DishCardView(dish: dish, namespace: heroAnimationNamespace)
                                     .padding(.vertical, 10)
                                     .transition(.asymmetric(
@@ -56,25 +50,46 @@ struct DishListView: View {
                         .padding(.horizontal)
 
                         if showSuggestion {
-                            if viewModel.dietaryAdvice != nil {
-                                SuggestionView()
-                            } else {
-                                analyzingFooter
+                            SuggestionView()
+                        }
+
+                        if !animatedDishes.isEmpty {
+                            VStack(spacing: 0) {
+                                Rectangle()
+                                    .fill(.mainText)
+                                    .frame(height: 3)
+                                HStack {
+                                    Text("Photo")
+                                    Spacer()
+                                    Image(systemName: "photo")
+                                }
+                                .font(.system(.title2, design: .serif, weight: .semibold))
+                                .foregroundStyle(.mainText)
+                                .padding(.bottom, 10)
+
+                                FoodAnnotationView(image: capturedImage, dishes: animatedDishes)
+                                    .aspectRatio(
+                                        capturedImage.size.width / max(capturedImage.size.height, 1),
+                                        contentMode: .fit
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .transition(.opacity.animation(.easeIn(duration: 0.4)))
                             }
+                            .padding(.horizontal, 10)
+                            .padding(.bottom, 10)
                         }
                     }
                 }
                 .scrollIndicators(.never)
-            }
+                .opacity(selectedDish == nil ? 1 : 0)
+                .allowsHitTesting(selectedDish == nil)
 
             if let dish = selectedDish {
                 DishDetailView(
                     dish: dish,
                     namespace: heroAnimationNamespace,
                     onDismiss: {
-                        withAnimation(.easeInOut(duration: 0.4)) {
-                            selectedDish = nil
-                        }
+                        withAnimation(.easeInOut(duration: 0.4)) { selectedDish = nil }
                     }
                 )
                 .transition(.opacity)
@@ -83,43 +98,45 @@ struct DishListView: View {
         .onChange(of: viewModel.dishes) { _, newDishes in
             animateDishesAppearing(newDishes)
         }
+        .onChange(of: viewModel.newTrophies) { _, trophies in
+            if !trophies.isEmpty {
+                currentTrophyIndex = 0
+                showTrophyPopup    = true
+            }
+        }
         .onAppear {
             if animatedDishes.isEmpty && !viewModel.dishes.isEmpty {
                 animateDishesAppearing(viewModel.dishes)
             }
         }
         .overlay(alignment: .bottomTrailing) {
-            if selectedDish == nil {
+            if selectedDish == nil && viewModel.state == .complete {
                 Button {
-                    Task { await saveAndContinue() }
-                } label: {
-                    Group {
-                        if isSaving {
-                            ProgressView().tint(.mainEnable)
-                        } else {
-                            Image(systemName: "checkmark")
-                                .font(.system(.title2, design: .serif, weight: .bold))
-                                .foregroundStyle(.mainEnable)
-                        }
+                    if !viewModel.newTrophies.isEmpty {
+                        currentTrophyIndex = 0
+                        showTrophyPopup    = true
+                    } else {
+                        dismiss()
                     }
-                    .frame(width: 40, height: 40)
-                    .glassEffect(.regular.interactive(), in: Circle())
+                } label: {
+                    Image(systemName: "checkmark")
+                        .font(.system(.title2, design: .serif, weight: .bold))
+                        .foregroundStyle(.mainEnable)
+                        .frame(width: 40, height: 40)
+                        .glassEffect(.regular.interactive(), in: Circle())
                 }
                 .padding(30)
-                .disabled(isSaving)
             }
         }
         .overlay {
-            if showTrophyPopup, currentTrophyIndex < earnedTrophies.count {
+            if showTrophyPopup && currentTrophyIndex < viewModel.newTrophies.count {
                 TrophyPopupView(
-                    trophy: earnedTrophies[currentTrophyIndex],
+                    trophy: viewModel.newTrophies[currentTrophyIndex],
                     onDismiss: {
-                        if currentTrophyIndex < earnedTrophies.count - 1 {
+                        if currentTrophyIndex < viewModel.newTrophies.count - 1 {
                             currentTrophyIndex += 1
                         } else {
-                            showTrophyPopup    = false
-                            earnedTrophies     = []
-                            currentTrophyIndex = 0
+                            showTrophyPopup = false
                             dismiss()
                         }
                     }
@@ -129,35 +146,14 @@ struct DishListView: View {
         .ignoresSafeArea()
     }
 
-    // MARK: - Save Action
-
-    private func saveAndContinue() async {
-        isSaving = true
-        defer { isSaving = false }
-
-        let newTrophies = await viewModel.saveMealIfNeeded()
-        if !newTrophies.isEmpty {
-            earnedTrophies    = newTrophies
-            currentTrophyIndex = 0
-            showTrophyPopup   = true
-        } else {
-            dismiss()
-        }
-    }
-
     // MARK: - Helpers
-
-    private var analyzingFooter: some View {
-        TypingAnimationText(fullText: "Analyzing...")
-            .frame(height: 20)
-            .padding(.bottom, 12)
-    }
 
     private var allIngredients: [FoodIngredient] {
         animatedDishes.flatMap { $0.ingredients }
     }
 
     private func animateDishesAppearing(_ dishes: [Dish]) {
+        let isPreview = ProcessInfo.processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] != nil
         if isPreview {
             animatedDishes = dishes
             showSuggestion = true
@@ -167,12 +163,9 @@ struct DishListView: View {
         animatedDishes = []
         for (index, dish) in dishes.enumerated() {
             DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.2) {
-                withAnimation(.easeOut(duration: 0.3)) {
-                    animatedDishes.append(dish)
-                }
+                withAnimation(.easeOut(duration: 0.3)) { animatedDishes.append(dish) }
             }
         }
-
         let delay = Double(dishes.count) * 0.2 + 0.5
         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
             withAnimation { showSuggestion = true }
@@ -192,33 +185,11 @@ private struct DishListPreviewWrapper: View {
         _viewModel = StateObject(wrappedValue: vm)
         Task { @MainActor in
             vm.dishes = Dish.sampleData
-            vm.state  = .completed
-            vm.dietaryAdvice = .sample
+            vm.state  = .complete
         }
     }
 
     var body: some View {
-        DishListView().environmentObject(viewModel)
-    }
-}
-
-fileprivate extension DietaryAdviceResult {
-    static var sample: DietaryAdviceResult {
-        let analysis = NutritionAnalysis(
-            summary: "Overall balanced meal with room to boost fiber.",
-            nutritionStatus: "balanced",
-            pros: ["Good protein coverage"],
-            cons: ["Fiber is lower than daily target"]
-        )
-        let recommendation = NextMealRecommendation(
-            recommendedDish: RecommendedMealDish(
-                dishName: "Grilled Salmon with Quinoa",
-                icon: "🥗", weight: 320,
-                proteinPercent: 28, fatPercent: 15, carbohydratePercent: 40
-            ),
-            reason: "Balances previous meal by adding fiber.",
-            nutrientsFocus: ["Increase dietary fiber", "Maintain lean protein"]
-        )
-        return DietaryAdviceResult(analysis: analysis, nextMealRecommendation: recommendation)
+        DishListView(capturedImage: UIImage()).environmentObject(viewModel)
     }
 }

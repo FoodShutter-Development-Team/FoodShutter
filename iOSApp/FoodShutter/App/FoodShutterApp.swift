@@ -2,18 +2,19 @@
 //  FoodShutterApp.swift
 //  FoodShutter
 //
-//  App 入口 & 路由管理（Supabase 云端版）
+//  App entry point & routing (Supabase cloud version)
 //
 
 import SwiftUI
 import Combine
+import Supabase
 
 // MARK: - Auth State
 
 enum AuthState {
-    case loading        // 启动时检查 session
-    case authenticated  // 已登录
-    case unauthenticated // 未登录，显示 AuthView
+    case loading        // Checking session at startup
+    case authenticated  // Signed in
+    case unauthenticated // Not signed in; shows AuthView
 }
 
 // MARK: - AppState
@@ -22,15 +23,15 @@ enum AuthState {
 class AppState: ObservableObject {
     @Published var authState: AuthState = .loading
     @Published var hasProfile: Bool = false
-    @Published private var analysisViewModel: FoodAnalysisViewModel?
+    private var analysisViewModel: FoodAnalysisViewModel?
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        // 启动 Auth 监听（唯一入口，处理 initialSession + 后续事件）
+        // Start auth listener (single entry point, handles initialSession + subsequent events)
         AuthManager.shared.startListening()
 
-        // 等待初始 session 解析完成后，设置 auth 状态
+        // Once the initial session is resolved, set the auth state
         AuthManager.shared.$initialSessionResolved
             .filter { $0 }
             .first()
@@ -41,9 +42,9 @@ class AppState: ObservableObject {
             }
             .store(in: &cancellables)
 
-        // 持续观察 currentUser 变化（登录/登出均触发路由切换）
+        // Continuously observe currentUser changes (sign-in/sign-out both trigger routing)
         AuthManager.shared.$currentUser
-            .dropFirst() // 跳过初始 nil
+            .dropFirst() // Skip initial nil
             .receive(on: DispatchQueue.main)
             .sink { [weak self] user in
                 guard let self else { return }
@@ -59,16 +60,25 @@ class AppState: ObservableObject {
     // MARK: - Auth State Check
 
     func checkAuthState() async {
-        if AuthManager.shared.currentUser != nil {
-            let profileExists = (try? await ProfileRepository.shared.hasProfile()) ?? false
+        guard AuthManager.shared.currentUser != nil else {
+            authState = .unauthenticated
+            return
+        }
+        // Validate the session is still live on the server (catches deleted-user scenario)
+        guard (try? await supabase.auth.user()) != nil else {
+            try? await AuthManager.shared.signOut()
+            authState = .unauthenticated
+            return
+        }
+        do {
+            let profileExists = try await ProfileRepository.shared.hasProfile()
             hasProfile = profileExists
             authState  = .authenticated
-
             if profileExists {
-                await ensureNutritionTargets()
                 await checkTrophiesOnStartup()
             }
-        } else {
+        } catch {
+            try? await AuthManager.shared.signOut()
             authState = .unauthenticated
         }
     }
@@ -87,7 +97,6 @@ class AppState: ObservableObject {
 
     func onProfileSaved() async {
         hasProfile = true
-        await ensureNutritionTargets()
     }
 
     // MARK: - ViewModel
@@ -105,17 +114,8 @@ class AppState: ObservableObject {
 
     // MARK: - Private Startup Tasks
 
-    private func ensureNutritionTargets() async {
-        guard (try? await ProfileRepository.shared.getNutritionTargets()) == nil else { return }
-        do {
-            try await ProfileRepository.shared.generateNutritionTargets()
-            print("✓ Nutrition targets generated")
-        } catch {
-            print("⚠️ Failed to generate nutrition targets: \(error.localizedDescription)")
-        }
-    }
-
     private func checkTrophiesOnStartup() async {
+        await TrophyRepository.shared.seedDemoTrophiesIfNeeded()
         let newTrophies = await TrophyRepository.shared.checkForNewTrophies()
         if !newTrophies.isEmpty {
             print("🏆 \(newTrophies.count) trophy(ies) earned on startup")
@@ -162,6 +162,11 @@ struct FoodShutterApp: App {
                 }
             }
             .preferredColorScheme(.light)
+            .onOpenURL { url in
+                Task {
+                    try? await supabase.auth.session(from: url)
+                }
+            }
         }
     }
 }

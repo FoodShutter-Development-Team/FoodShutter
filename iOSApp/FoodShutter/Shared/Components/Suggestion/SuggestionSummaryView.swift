@@ -2,8 +2,6 @@
 //  SuggestionSummaryView.swift
 //  FoodShutter
 //
-//  Daily nutrition review and next meal guidelines
-//
 
 import SwiftUI
 
@@ -24,10 +22,9 @@ struct SuggestionSummaryView: View {
             .font(.system(.title2, design: .serif, weight: .semibold))
             .foregroundStyle(.mainText)
 
-            if let advice = viewModel.dietaryAdvice {
+            if let advice = viewModel.mealAdvice {
                 VStack(alignment: .leading, spacing: 14) {
-
-                    Text(advice.analysis.summary)
+                    Text(advice.summary)
                         .font(.system(size: 18))
                         .fontDesign(.serif)
                         .foregroundStyle(.mainText)
@@ -35,20 +32,21 @@ struct SuggestionSummaryView: View {
                         .lineLimit(nil)
                         .padding(.top, 5)
 
-                    if !advice.analysis.pros.isEmpty {
-                        BulletListView(items: advice.analysis.pros, bulletColor: .userEnable)
+                    if !advice.pros.isEmpty {
+                        BulletListView(items: advice.pros, bulletColor: .userEnable)
                     }
-                    if !advice.analysis.cons.isEmpty {
-                        BulletListView(items: advice.analysis.cons, bulletColor: .mainEnable)
+                    if !advice.cons.isEmpty {
+                        BulletListView(items: advice.cons, bulletColor: .mainEnable)
+                    }
+                    if !advice.suggestions.isEmpty {
+                        BulletListView(items: advice.suggestions, bulletColor: .mainText)
                     }
                 }
                 .font(.system(size: 18))
                 .fontDesign(.serif)
                 .foregroundStyle(.mainText)
                 .transition(.opacity)
-
             } else {
-                // Loading placeholder
                 VStack(spacing: 10) {
                     ProgressView()
                         .scaleEffect(1.2)
@@ -61,6 +59,6 @@ struct SuggestionSummaryView: View {
                 .transition(.opacity)
             }
         }
-        .animation(.easeIn(duration: 0.5), value: viewModel.dietaryAdvice != nil)
+        .animation(.easeIn(duration: 0.5), value: viewModel.mealAdvice != nil)
     }
 }

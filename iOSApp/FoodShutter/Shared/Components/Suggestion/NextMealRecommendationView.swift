@@ -1,8 +1,6 @@
 //
-//  SuggestionAddView.swift
+//  NextMealRecommendationView.swift
 //  FoodShutter
-//
-//  View for suggesting additional food items to add to the meal
 //
 
 import SwiftUI
@@ -15,35 +13,32 @@ struct NextMealRecommendationView: View {
             Rectangle()
                 .fill(.mainText)
                 .frame(height: 3)
+
             HStack {
-                HStack(spacing: 8) {
-                    Text("Next Meal Recommendation")
-                        .lineLimit(1)
-                }
+                Text("Next Meal Recommendation")
+                    .lineLimit(1)
                 Spacer()
                 Image(systemName: "sparkles.2")
             }
             .font(.system(.title2, design: .serif, weight: .semibold))
             .foregroundStyle(.mainText)
 
-            if viewModel.state == .fetchingAdvice {
-                // Loading state while fetching advice
+            if viewModel.state == .computingNutrition {
                 VStack(spacing: 10) {
                     TypingAnimationText()
                 }
                 .frame(height: 150)
                 .transition(.opacity)
-
-            } else if let advice = viewModel.dietaryAdvice {
-                // Show real recommendation from Gemini
-                let recommended = advice.nextMealRecommendation.recommendedDish
+            } else if let rec = viewModel.mealAdvice?.nextMealRecommendation {
+                let dish = rec.recommendedDish
                 let food = FoodIngredient(
-                    name: recommended.dishName,
-                    icon: recommended.icon,
-                    weight: recommended.weight,
-                    proteinPercent: recommended.proteinPercent,
-                    fatPercent: recommended.fatPercent,
-                    carbohydratePercent: recommended.carbohydratePercent
+                    name: dish.dishName,
+                    icon: dish.icon,
+                    weightGrams: dish.weight,
+                    calories: 0,
+                    proteinG: dish.proteinPercent,
+                    fatG: dish.fatPercent,
+                    carbG: dish.carbohydratePercent
                 )
 
                 FoodIngredientSuggestionView(food: food)
@@ -51,29 +46,33 @@ struct NextMealRecommendationView: View {
                     .transition(.opacity)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    // Recommendation reason
-                    Text(advice.nextMealRecommendation.reason)
+                    Text(rec.reason)
                         .font(.system(size: 18))
                         .fontDesign(.serif)
                         .foregroundStyle(.mainText)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
 
-                    // Nutrients focus bullets
-                    if !advice.nextMealRecommendation.nutrientsFocus.isEmpty {
-                        HStack(spacing: 8) {
-                            Text("Nutrients Focus:")
+                    if !rec.nutrientsFocus.isEmpty {
+                        Text("Nutrients Focus:")
+                            .font(.system(.title3, design: .serif, weight: .regular))
+                            .foregroundStyle(.mainText)
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(rec.nutrientsFocus, id: \.self) { item in
+                                HStack(alignment: .top, spacing: 10) {
+                                    Circle()
+                                        .fill(Color.mainEnable)
+                                        .frame(width: 8, height: 8)
+                                        .padding(.top, 6)
+                                    Text(item)
+                                        .font(.system(size: 18))
+                                        .fontDesign(.serif)
+                                        .foregroundStyle(.mainText)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                }
+                            }
                         }
-                        .font(.system(.title3, design: .serif, weight: .regular))
-                        .foregroundStyle(.mainText)
-
-                        BulletListView(
-                            items: advice.nextMealRecommendation.nutrientsFocus,
-                            bulletColor: .userEnable
-                        )
-                        .font(.system(size: 18))
-                        .fontDesign(.serif)
-                        .foregroundStyle(.mainText)
                     }
                 }
                 .padding(.top, 8)
@@ -81,6 +80,6 @@ struct NextMealRecommendationView: View {
             }
         }
         .animation(.easeIn(duration: 0.5), value: viewModel.state)
-        .animation(.easeIn(duration: 0.5), value: viewModel.dietaryAdvice != nil)
+        .animation(.easeIn(duration: 0.5), value: viewModel.mealAdvice != nil)
     }
 }

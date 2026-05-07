@@ -8,12 +8,12 @@
 import SwiftUI
 import UIKit
 
-// 纯输入页面（无 welcome、无后退）
+// Pure input page (no welcome screen, no back button)
 struct InfoView: View {
     var initialName: String? = nil
     var profile: UserNutritionProfile? = nil
     var onFinished: (() -> Void)? = nil
-    var showResetButton: Bool = false  // 已移至 SettingListView 账户操作区
+    var showResetButton: Bool = false  // Moved to the Account Actions section of SettingListView
 
     var body: some View {
         ZStack{
@@ -38,22 +38,24 @@ struct InfoInputList: View {
     let onFinished: (() -> Void)?
     let showResetButton: Bool
     
-    // --- 原有状态 ---
+    // --- Existing state ---
     @State private var selected: [String] = []
     @State private var BMI: Double = -1
     @State private var weightValue: Int = 70
     @State private var heightValue: Int = 170
 
-    // --- 新增状态 (New State Variables) ---
+    // --- New state variables ---
     @State private var age: Int = 25
-    // Gender 使用 CGFloat 以便制作滑块动画 (0.0 = Male, 1.0 = Female)
+    // Gender uses CGFloat for smooth slider animation (0.0 = Male, 1.0 = Female)
     @State private var genderValue: CGFloat = 0.0
     @State private var activityLevelIndex: Int = 0
     @State private var dietPreference: String = ""
     @State private var otherNotes: String = ""
     @State private var keyboardHeight: CGFloat = 0
+    @State private var isSaving = false
+    @State private var saveErrorMessage: String? = nil
 
-    // 原始目标列表
+    // Available goal options
     let selectList: [String] = [
         "Build Muscle",
         "Lose Fat",
@@ -66,7 +68,7 @@ struct InfoInputList: View {
         "Body Recomposition"
     ]
     
-    // 活动水平选项 (更专业易懂的描述 - 精简版)
+    // Activity level options (concise, professional descriptions)
     struct ActivityOption: Hashable {
         let id: Int
         let title: String
@@ -93,7 +95,7 @@ struct InfoInputList: View {
         self.onFinished      = onFinished
         self.showResetButton = showResetButton
 
-        // 使用传入的 profile，若无则使用默认值
+        // Use the provided profile, or fall back to defaults
         let resolvedWeight = profile?.weight ?? 70.0
         let resolvedHeight = profile?.height ?? 170.0
         let resolvedAge    = profile?.age    ?? 25
@@ -163,7 +165,7 @@ struct InfoInputList: View {
 
                     
                     // --- Section 2: Age & Gender (Compact Style) ---
-                    // 整体作为一个Block，用粗横线分割
+                    // Grouped as a single block, separated by bold horizontal lines
                     VStack(spacing: 0) {
                         Rectangle()
                             .fill(.mainText)
@@ -369,15 +371,31 @@ struct InfoInputList: View {
                     Button{
                         saveProfile()
                     } label: {
-                        Text("Done")
-                            .fontDesign(.serif)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.userEnable)
-                            .padding(5)
-                            .frame(width: 80)
+                        Group {
+                            if isSaving {
+                                ProgressView()
+                                    .tint(.userEnable)
+                            } else {
+                                Text("Done")
+                                    .fontDesign(.serif)
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(.userEnable)
+                            }
+                        }
+                        .padding(5)
+                        .frame(width: 80)
                     }
                     .buttonStyle(.glass)
-                    .disabled(BMI == -1 || name.isEmpty)
+                    .disabled(BMI == -1 || name.isEmpty || isSaving)
+                    .alert("Failed to Save", isPresented: Binding(
+                        get: { saveErrorMessage != nil },
+                        set: { if !$0 { saveErrorMessage = nil } }
+                    )) {
+                        Button("Retry") { saveProfile() }
+                        Button("Cancel", role: .cancel) {}
+                    } message: {
+                        Text(saveErrorMessage ?? "")
+                    }
 
                     if showResetButton {
                         Button {
@@ -506,23 +524,22 @@ struct InfoInputList: View {
             other:         otherNotes
         )
 
+        isSaving = true
         Task {
             do {
-                // 上传到 Supabase profiles 表
                 try await ProfileRepository.shared.upsertProfile(updatedProfile)
-                print("✓ Profile saved to Supabase")
-
-                // 后台生成营养目标（不阻断用户流程）
-                print("🔄 Generating nutrition targets...")
-                try await ProfileRepository.shared.generateNutritionTargets()
-                print("✓ Nutrition targets generated")
+                await MainActor.run {
+                    isSaving = false
+                    dismiss()
+                    onFinished?()
+                }
             } catch {
-                print("⚠️ Failed to save profile: \(error.localizedDescription)")
+                await MainActor.run {
+                    isSaving = false
+                    saveErrorMessage = error.localizedDescription
+                }
             }
         }
-
-        dismiss()
-        onFinished?()
     }
 
     private func resetProfile() {
@@ -538,7 +555,7 @@ struct InfoInputList: View {
         BMI = -1
     }
 
-    // MARK: - 已废弃（SwiftData 迁移至 Supabase）
+    // MARK: - Deprecated (migrated from SwiftData to Supabase)
 
     private func generateTestData() {
         print("🧪 Generating test data...")
@@ -555,7 +572,7 @@ struct InfoInputList: View {
             preference: "No restrictions",
             other: "Test user for demonstration"
         )
-        _ = testProfile  // 废弃：原 UserProfileManager 已移除
+        _ = testProfile  // Deprecated: original UserProfileManager has been removed
 
         // Update UI fields to reflect test profile
         name = testProfile.name
@@ -589,7 +606,7 @@ struct CustomTextField: View {
                 .fontWeight(.bold)
                 .foregroundStyle(.mainText)
             
-            // 使用下划线风格 (Typewriter style aesthetic)
+            // Underline style (typewriter aesthetic)
             VStack(spacing: 0) {
                 TextField(placeholder, text: $text)
                     .font(.system(size: 16, design: .serif))

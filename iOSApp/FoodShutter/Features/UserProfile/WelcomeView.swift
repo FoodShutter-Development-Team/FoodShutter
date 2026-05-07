@@ -2,7 +2,7 @@
 //  WelcomeView.swift
 //  FoodShutter
 //
-//  原先的欢迎页拆分为独立文件
+//  Welcome screen extracted into its own file
 //
 
 import SwiftUI

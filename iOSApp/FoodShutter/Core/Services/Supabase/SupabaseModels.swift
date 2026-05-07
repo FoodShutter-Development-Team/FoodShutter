@@ -2,19 +2,20 @@
 //  SupabaseModels.swift
 //  FoodShutter
 //
-//  Supabase 数据库 Row / Insert / Update 模型
-//  命名约定：XxxRow（读取）、XxxInsert（写入）、XxxUpdate（更新）
+//  Supabase database row models (read-only; writes are handled by the backend)
 //
 
 import Foundation
 
-// MARK: - MealType（从 MealEntity.swift 迁移至此）
+// MARK: - MealType
 
-enum MealType: String, Codable {
-    case breakfast = "Breakfast"
-    case lunch     = "Lunch"
-    case dinner    = "Dinner"
-    case snack     = "Snack"
+enum MealType: String, Codable, CaseIterable {
+    case breakfast    = "breakfast"
+    case lunch        = "lunch"
+    case dinner       = "dinner"
+    case snack        = "snack"
+    case afternoonTea = "afternoon_tea"
+    case other        = "other"
 
     static func determine() -> MealType {
         let hour = Calendar.current.component(.hour, from: Date())
@@ -27,6 +28,57 @@ enum MealType: String, Codable {
     }
 }
 
+// MARK: - MealStatus
+
+enum MealStatus: String, Codable {
+    case processing  = "processing"
+    case dishesReady = "dishes_ready"
+    case complete    = "complete"
+    case failed      = "failed"
+}
+
+// MARK: - User Profile
+
+struct UserNutritionProfile: Codable {
+    var name: String
+    var weight: Double
+    var height: Double
+    var age: Int
+    var gender: String
+    var activityLevel: String
+    var goals: [String]
+    var preference: String
+    var other: String
+
+    enum CodingKeys: String, CodingKey {
+        case name, weight, height, age, gender, preference, other
+        case activityLevel = "activity_level"
+        case goals
+    }
+
+    init(
+        name: String = "",
+        weight: Double,
+        height: Double,
+        age: Int,
+        gender: String,
+        activityLevel: String,
+        goals: [String],
+        preference: String,
+        other: String
+    ) {
+        self.name = name
+        self.weight = weight
+        self.height = height
+        self.age = age
+        self.gender = gender
+        self.activityLevel = activityLevel
+        self.goals = goals
+        self.preference = preference
+        self.other = other
+    }
+}
+
 // MARK: - Nutrition Targets JSONB
 
 struct NutritionRange: Codable {
@@ -35,7 +87,6 @@ struct NutritionRange: Codable {
     let target: Double
 }
 
-/// 对应 Supabase nutrition_targets JSONB 列结构
 struct NutritionTargetsRow: Codable {
     let dailyCalories:     NutritionRange
     let dailyProtein:      NutritionRange
@@ -51,7 +102,6 @@ struct NutritionTargetsRow: Codable {
         case explanation
     }
 
-    /// 从 Supabase 行转换为 App 域模型
     func toNutritionTargets(generatedAt: Date) -> NutritionTargets {
         NutritionTargets(
             caloriesMin:    dailyCalories.min,
@@ -71,7 +121,6 @@ struct NutritionTargetsRow: Codable {
         )
     }
 
-    /// 从 App 域模型构建 Supabase 行
     static func from(_ targets: NutritionTargets) -> NutritionTargetsRow {
         NutritionTargetsRow(
             dailyCalories:     NutritionRange(min: targets.caloriesMin, max: targets.caloriesMax, target: targets.caloriesTarget),
@@ -85,7 +134,6 @@ struct NutritionTargetsRow: Codable {
 
 // MARK: - Profile Models
 
-/// 从 Supabase profiles 表读取
 struct ProfileRow: Decodable {
     let id: UUID
     let name: String?
@@ -100,7 +148,55 @@ struct ProfileRow: Decodable {
     let nutritionTargets: NutritionTargetsRow?
     let targetsGeneratedAt: Date?
 
-    /// 转换为 App 域模型（不含 NutritionTargets，单独处理）
+    enum CodingKeys: String, CodingKey {
+        case id, name, age, gender
+        case weightKg           = "weight_kg"
+        case heightCm           = "height_cm"
+        case activityLevel      = "activity_level"
+        case healthGoal         = "health_goal"
+        case dietaryPreferences = "dietary_preferences"
+        case specialNotes       = "special_notes"
+        case nutritionTargets   = "nutrition_targets"
+        case targetsGeneratedAt = "targets_generated_at"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id                  = try c.decode(UUID.self,     forKey: .id)
+        name                = try c.decodeIfPresent(String.self,               forKey: .name)
+        age                 = try c.decodeIfPresent(Int.self,                  forKey: .age)
+        weightKg            = try c.decodeIfPresent(Double.self,               forKey: .weightKg)
+        heightCm            = try c.decodeIfPresent(Double.self,               forKey: .heightCm)
+        gender              = try c.decodeIfPresent(String.self,               forKey: .gender)
+        activityLevel       = try c.decodeIfPresent(String.self,               forKey: .activityLevel)
+        healthGoal          = try c.decodeIfPresent(String.self,               forKey: .healthGoal)
+        dietaryPreferences  = try c.decodeIfPresent([String].self,             forKey: .dietaryPreferences)
+        specialNotes        = try c.decodeIfPresent(String.self,               forKey: .specialNotes)
+        nutritionTargets    = try c.decodeIfPresent(NutritionTargetsRow.self,  forKey: .nutritionTargets)
+
+        // Supabase stores timestamps without fractional seconds; try both formats.
+        if let raw = try c.decodeIfPresent(String.self, forKey: .targetsGeneratedAt) {
+            targetsGeneratedAt = Self.parseISO8601(raw)
+        } else {
+            targetsGeneratedAt = nil
+        }
+    }
+
+    private static let iso8601Formatters: [ISO8601DateFormatter] = {
+        let withFrac = ISO8601DateFormatter()
+        withFrac.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let plain = ISO8601DateFormatter()
+        plain.formatOptions = [.withInternetDateTime]
+        return [withFrac, plain]
+    }()
+
+    private static func parseISO8601(_ string: String) -> Date? {
+        for fmt in iso8601Formatters {
+            if let date = fmt.date(from: string) { return date }
+        }
+        return nil
+    }
+
     func toUserNutritionProfile() -> UserNutritionProfile {
         UserNutritionProfile(
             name:          name ?? "",
@@ -115,15 +211,12 @@ struct ProfileRow: Decodable {
         )
     }
 
-    /// 转换 nutritionTargets JSONB → App NutritionTargets
     func toNutritionTargets() -> NutritionTargets? {
-        guard let row = nutritionTargets,
-              let generatedAt = targetsGeneratedAt else { return nil }
+        guard let row = nutritionTargets, let generatedAt = targetsGeneratedAt else { return nil }
         return row.toNutritionTargets(generatedAt: generatedAt)
     }
 }
 
-/// 写入 Supabase profiles 表（upsert 时使用）
 struct ProfileUpsert: Encodable {
     let id: UUID
     let name: String
@@ -138,20 +231,16 @@ struct ProfileUpsert: Encodable {
     let updatedAt: Date
 
     enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case age
-        case weightKg          = "weight_kg"
-        case heightCm          = "height_cm"
-        case gender
-        case activityLevel     = "activity_level"
-        case healthGoal        = "health_goal"
+        case id, name, age, gender
+        case weightKg           = "weight_kg"
+        case heightCm           = "height_cm"
+        case activityLevel      = "activity_level"
+        case healthGoal         = "health_goal"
         case dietaryPreferences = "dietary_preferences"
-        case specialNotes      = "special_notes"
-        case updatedAt         = "updated_at"
+        case specialNotes       = "special_notes"
+        case updatedAt          = "updated_at"
     }
 
-    /// 从 App 域模型构建 Supabase upsert 载荷
     static func from(_ profile: UserNutritionProfile, userId: UUID) -> ProfileUpsert {
         ProfileUpsert(
             id:                  userId,
@@ -169,188 +258,202 @@ struct ProfileUpsert: Encodable {
     }
 }
 
-/// 只更新 nutrition_targets 和 targets_generated_at
 struct ProfileTargetsUpdate: Encodable {
     let nutritionTargets: NutritionTargetsRow
     let targetsGeneratedAt: Date
 
     enum CodingKeys: String, CodingKey {
-        case nutritionTargets    = "nutrition_targets"
-        case targetsGeneratedAt  = "targets_generated_at"
+        case nutritionTargets   = "nutrition_targets"
+        case targetsGeneratedAt = "targets_generated_at"
     }
 }
 
 // MARK: - Meal Models
 
-/// 从 Supabase meals 表读取（含嵌套 dishes + ingredients JOIN）
+/// Lightweight row used for polling meals.status
+struct MealStatusRow: Decodable {
+    let status: String
+    let pipelineError: String?
+
+    enum CodingKeys: String, CodingKey {
+        case status
+        case pipelineError = "pipeline_error"
+    }
+}
+
+/// Full row read from the Supabase meals table (including nested dishes + ingredients)
 struct MealRow: Decodable, Identifiable {
     let id: UUID
     let userId: UUID
     let timestamp: Date
     let mealType: String
     let photoUrl: String?
-    let advice: DietaryAdviceResult?
+    let status: String
+    let pipelineError: String?
     let dishes: [DishRow]
 
-    // MARK: Computed Nutrition Aggregates
-
-    var totalProtein: Double {
-        dishes.reduce(0) { $0 + $1.totalProtein }
-    }
-
-    var totalFat: Double {
-        dishes.reduce(0) { $0 + $1.totalFat }
-    }
-
-    var totalCarbohydrate: Double {
-        dishes.reduce(0) { $0 + $1.totalCarbohydrate }
-    }
-
-    var totalCalories: Double {
-        dishes.reduce(0) { $0 + $1.totalCalories }
+    enum CodingKeys: String, CodingKey {
+        case id, status, timestamp, dishes
+        case userId        = "user_id"
+        case mealType      = "meal_type"
+        case photoUrl      = "photo_url"
+        case pipelineError = "pipeline_error"
     }
 
     var mealTypeEnum: MealType {
-        MealType(rawValue: mealType) ?? .snack
+        MealType(rawValue: mealType) ?? .other
     }
 
-    var dietaryAdvice: DietaryAdviceResult? { advice }
+    var statusEnum: MealStatus {
+        MealStatus(rawValue: status) ?? .processing
+    }
 
-    /// 将所有菜品转换为 UI 域模型
+    // MARK: - Computed Nutrition Aggregates
+
+    var totalCalories: Double    { dishes.filter { !$0.empty }.reduce(0) { $0 + ($1.totalCalories ?? 0) } }
+    var totalProtein: Double     { dishes.filter { !$0.empty }.reduce(0) { $0 + ($1.totalProteinG ?? 0) } }
+    var totalFat: Double         { dishes.filter { !$0.empty }.reduce(0) { $0 + ($1.totalFatG ?? 0) } }
+    var totalCarbohydrate: Double { dishes.filter { !$0.empty }.reduce(0) { $0 + ($1.totalCarbG ?? 0) } }
+
     func toDishes() -> [Dish] {
-        dishes.map { $0.toDish() }
-    }
-}
-
-/// 写入 Supabase meals 表
-struct MealInsert: Encodable {
-    let id: UUID
-    let userId: UUID
-    let timestamp: Date
-    let mealType: String
-    let photoUrl: String?
-    let advice: DietaryAdviceResult?
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case userId   = "user_id"
-        case timestamp
-        case mealType = "meal_type"
-        case photoUrl = "photo_url"
-        case advice
+        dishes.filter { !$0.empty }.map { $0.toDish() }
     }
 }
 
 // MARK: - Dish Models
 
-/// 从 Supabase dishes 表读取
 struct DishRow: Decodable, Identifiable {
     let id: UUID
     let mealId: UUID
     let name: String
     let icon: String?
+    let bbox: [Double]?
     let sortOrder: Int?
+    let empty: Bool
+    let container: String?
+    let portionSize: String?
+    let estimatedTotalGrams: Double?
+    let confidence: String?
+    let totalCalories: Double?
+    let totalProteinG: Double?
+    let totalFatG: Double?
+    let totalCarbG: Double?
     let ingredients: [IngredientRow]
 
-    var totalProtein: Double {
-        ingredients.reduce(0) { $0 + $1.proteinWeight }
-    }
-
-    var totalFat: Double {
-        ingredients.reduce(0) { $0 + $1.fatWeight }
-    }
-
-    var totalCarbohydrate: Double {
-        ingredients.reduce(0) { $0 + $1.carbohydrateWeight }
-    }
-
-    var totalCalories: Double {
-        ingredients.reduce(0) { $0 + $1.calories }
+    enum CodingKeys: String, CodingKey {
+        case id, name, icon, bbox, empty, container, confidence, ingredients
+        case mealId             = "meal_id"
+        case sortOrder          = "sort_order"
+        case portionSize        = "portion_size"
+        case estimatedTotalGrams = "estimated_total_grams"
+        case totalCalories      = "total_calories"
+        case totalProteinG      = "total_protein_g"
+        case totalFatG          = "total_fat_g"
+        case totalCarbG         = "total_carb_g"
     }
 
     func toDish() -> Dish {
         Dish(
-            name:        name,
-            icon:        icon ?? "🍽️",
-            ingredients: ingredients.map { $0.toFoodIngredient() }
+            id:            id,
+            name:          name,
+            icon:          icon.flatMap { $0.isEmpty ? nil : $0 } ?? FoodEmojiMapper.emoji(for: name),
+            ingredients:   ingredients.map { $0.toFoodIngredient() },
+            bbox:          bbox,
+            container:     container,
+            portionSize:   portionSize,
+            estimatedGrams: estimatedTotalGrams,
+            confidence:    confidence
         )
-    }
-}
-
-/// 写入 Supabase dishes 表
-struct DishInsert: Encodable {
-    let id: UUID
-    let mealId: UUID
-    let name: String
-    let icon: String
-    let sortOrder: Int
-
-    enum CodingKeys: String, CodingKey {
-        case id
-        case mealId    = "meal_id"
-        case name
-        case icon
-        case sortOrder = "sort_order"
     }
 }
 
 // MARK: - Ingredient Models
 
-/// 从 Supabase ingredients 表读取
 struct IngredientRow: Decodable, Identifiable {
     let id: UUID
     let dishId: UUID
     let name: String
+    let icon: String?
     let weightGrams: Double
-    let proteinPct: Double    // 0~1
-    let fatPct: Double        // 0~1
-    let carbohydratePct: Double // 0~1
-    let sortOrder: Int?
+    let calories: Double
+    let proteinG: Double
+    let fatG: Double
+    let carbG: Double
+    let confidence: String?
+    let source: String?
 
-    // 计算营养克重（基于 0~1 比例）
-    var proteinWeight:      Double { weightGrams * proteinPct }
-    var fatWeight:          Double { weightGrams * fatPct }
-    var carbohydrateWeight: Double { weightGrams * carbohydratePct }
-    var calories:           Double { proteinWeight * 4 + fatWeight * 9 + carbohydrateWeight * 4 }
+    enum CodingKeys: String, CodingKey {
+        case id, name, icon, calories, confidence, source
+        case dishId      = "dish_id"
+        case weightGrams = "weight_grams"
+        case proteinG    = "protein_g"
+        case fatG        = "fat_g"
+        case carbG       = "carb_g"
+    }
 
     func toFoodIngredient() -> FoodIngredient {
         FoodIngredient(
-            name:                name,
-            icon:                "",               // Supabase 不存储食材图标
-            weight:              weightGrams,
-            proteinPercent:      proteinPct * 100,  // 0~1 → 0~100
-            fatPercent:          fatPct * 100,
-            carbohydratePercent: carbohydratePct * 100
+            id:          id,
+            name:        name,
+            icon:        icon.flatMap { $0.isEmpty ? nil : $0 } ?? FoodEmojiMapper.emoji(for: name),
+            weightGrams: weightGrams,
+            calories:    calories,
+            proteinG:    proteinG,
+            fatG:        fatG,
+            carbG:       carbG,
+            confidence:  confidence,
+            source:      source
         )
     }
 }
 
-/// 写入 Supabase ingredients 表
-struct IngredientInsert: Encodable {
-    let id: UUID
-    let dishId: UUID
-    let name: String
-    let weightGrams: Double
-    let proteinPct: Double
-    let fatPct: Double
-    let carbohydratePct: Double
-    let sortOrder: Int
+// MARK: - Meal Advice
+
+struct NextMealRecommendation: Decodable {
+    struct RecommendedDish: Decodable {
+        let dishName: String
+        let icon: String
+        let weight: Double
+        let proteinPercent: Double
+        let fatPercent: Double
+        let carbohydratePercent: Double
+
+        enum CodingKeys: String, CodingKey {
+            case icon, weight, proteinPercent, fatPercent, carbohydratePercent
+            case dishName = "dish_name"
+        }
+    }
+
+    let recommendedDish: RecommendedDish
+    let reason: String
+    let nutrientsFocus: [String]
 
     enum CodingKeys: String, CodingKey {
-        case id
-        case dishId          = "dish_id"
-        case name
-        case weightGrams     = "weight_grams"
-        case proteinPct      = "protein_pct"
-        case fatPct          = "fat_pct"
-        case carbohydratePct = "carbohydrate_pct"
-        case sortOrder       = "sort_order"
+        case reason
+        case recommendedDish = "recommended_dish"
+        case nutrientsFocus  = "nutrients_focus"
+    }
+}
+
+struct MealAdviceRow: Decodable {
+    let mealId: UUID
+    let summary: String
+    let nutritionStatus: String
+    let pros: [String]
+    let cons: [String]
+    let suggestions: [String]
+    let nextMealRecommendation: NextMealRecommendation?
+
+    enum CodingKeys: String, CodingKey {
+        case summary, pros, cons, suggestions
+        case mealId                  = "meal_id"
+        case nutritionStatus         = "nutrition_status"
+        case nextMealRecommendation  = "next_meal_recommendation"
     }
 }
 
 // MARK: - Trophy Models
 
-/// 从 Supabase trophies 表读取
 struct TrophyRow: Decodable, Identifiable {
     let id: UUID
     let userId: UUID
@@ -359,22 +462,59 @@ struct TrophyRow: Decodable, Identifiable {
     let streakDays: Int?
     let nutritionSnapshot: TrophyNutritionSnapshot?
 
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId            = "user_id"
+        case trophyType        = "trophy_type"
+        case earnedDate        = "earned_date"
+        case streakDays        = "streak_days"
+        case nutritionSnapshot = "nutrition_snapshot"
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id                 = try c.decode(UUID.self,   forKey: .id)
+        userId             = try c.decode(UUID.self,   forKey: .userId)
+        trophyType         = try c.decode(String.self, forKey: .trophyType)
+        streakDays         = try c.decodeIfPresent(Int.self,                       forKey: .streakDays)
+        nutritionSnapshot  = try c.decodeIfPresent(TrophyNutritionSnapshot.self,   forKey: .nutritionSnapshot)
+
+        // earned_date is stored as "yyyy-MM-dd" (PostgreSQL date), not ISO 8601 with time
+        let raw = try c.decode(String.self, forKey: .earnedDate)
+        earnedDate = Self.parseDate(raw) ?? Date()
+    }
+
+    private static let ymdFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        f.locale = Locale(identifier: "en_US_POSIX")
+        return f
+    }()
+
+    private static func parseDate(_ s: String) -> Date? {
+        if let d = ymdFormatter.date(from: s) { return d }
+        let withFrac = ISO8601DateFormatter()
+        withFrac.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let d = withFrac.date(from: s) { return d }
+        let plain = ISO8601DateFormatter()
+        plain.formatOptions = [.withInternetDateTime]
+        return plain.date(from: s)
+    }
+
     func toTrophy() -> Trophy {
-        let snapshot = nutritionSnapshot
-        return Trophy(
-            id:            id,
-            type:          TrophyType(rawValue: trophyType) ?? .singleDay,
-            earnedDate:    earnedDate,
-            streakDays:    streakDays ?? 1,
-            calories:      snapshot?.calories ?? 0,
-            protein:       snapshot?.protein ?? 0,
-            fat:           snapshot?.fat ?? 0,
-            carbohydrate:  snapshot?.carbohydrate ?? 0
+        Trophy(
+            id:           id,
+            type:         TrophyType(rawValue: trophyType) ?? .singleDay,
+            earnedDate:   earnedDate,
+            streakDays:   streakDays ?? 1,
+            calories:     nutritionSnapshot?.calories ?? 0,
+            protein:      nutritionSnapshot?.protein ?? 0,
+            fat:          nutritionSnapshot?.fat ?? 0,
+            carbohydrate: nutritionSnapshot?.carbohydrate ?? 0
         )
     }
 }
 
-/// 奖杯营养快照（存入 nutrition_snapshot JSONB）
 struct TrophyNutritionSnapshot: Codable {
     let calories: Double
     let protein: Double
@@ -382,12 +522,11 @@ struct TrophyNutritionSnapshot: Codable {
     let carbohydrate: Double
 }
 
-/// 写入 Supabase trophies 表
 struct TrophyInsert: Encodable {
     let id: UUID
     let userId: UUID
     let trophyType: String
-    let earnedDate: String   // DATE 格式：yyyy-MM-dd
+    let earnedDate: String
     let streakDays: Int
     let nutritionSnapshot: TrophyNutritionSnapshot
 

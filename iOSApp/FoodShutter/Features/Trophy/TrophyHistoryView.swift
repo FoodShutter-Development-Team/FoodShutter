@@ -2,7 +2,7 @@
 //  TrophyHistoryView.swift
 //  FoodShutter
 //
-//  奖杯收藏视图（Supabase 云端版）
+//  Trophy collection view (Supabase cloud version)
 //
 
 import SwiftUI

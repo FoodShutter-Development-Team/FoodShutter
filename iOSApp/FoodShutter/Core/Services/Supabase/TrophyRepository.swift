@@ -2,7 +2,7 @@
 //  TrophyRepository.swift
 //  FoodShutter
 //
-//  奖杯云端存储与检测（替换 TrophyManager）
+//  Cloud storage and detection for trophies (replaces TrophyManager)
 //
 
 import Foundation
@@ -16,10 +16,17 @@ final class TrophyRepository {
 
     // MARK: - Trophy Detection
 
-    /// 检查并颁发新奖杯（在保存餐食后调用）
+    /// Check for and award new trophies (call after saving a meal)
     func checkForNewTrophies() async -> [Trophy] {
-        guard let targets = try? await ProfileRepository.shared.getNutritionTargets() else {
-            print("⚠️ No nutrition targets, cannot check trophies")
+        let targets: NutritionTargets?
+        do {
+            targets = try await ProfileRepository.shared.getNutritionTargets()
+        } catch {
+            print("⚠️ Could not load nutrition targets: \(error.localizedDescription)")
+            return []
+        }
+        guard let targets else {
+            print("⚠️ No nutrition targets set, skipping trophy check")
             return []
         }
 
@@ -29,7 +36,7 @@ final class TrophyRepository {
 
         let dailyTotals = await calculateDailyTotals(goingBack: 7, from: today)
 
-        // 单日达标
+        // Single-day goal met
         if let todayStats = dailyTotals.first,
            targets.isAllNutrientsInRange(
                calories: todayStats.calories,
@@ -46,7 +53,7 @@ final class TrophyRepository {
             newTrophies.append(trophy)
         }
 
-        // 3 天连续
+        // 3-day streak
         if dailyTotals.count >= 3 {
             let last3 = Array(dailyTotals.prefix(3))
             let streakStart = calendar.date(byAdding: .day, value: -2, to: today)!
@@ -61,7 +68,7 @@ final class TrophyRepository {
             }
         }
 
-        // 7 天连续
+        // 7-day streak
         if dailyTotals.count >= 7 {
             let last7 = Array(dailyTotals.prefix(7))
             let streakStart = calendar.date(byAdding: .day, value: -6, to: today)!
@@ -76,7 +83,7 @@ final class TrophyRepository {
             }
         }
 
-        // 保存新奖杯
+        // Save new trophies
         for trophy in newTrophies {
             try? await saveTrophy(trophy)
         }
@@ -100,6 +107,44 @@ final class TrophyRepository {
 
     func saveTrophyDirectly(_ trophy: Trophy) async throws {
         try await saveTrophy(trophy)
+    }
+
+    /// Insert a few historical trophies if the user has none (demo seeding).
+    func seedDemoTrophiesIfNeeded() async {
+        guard let userId = AuthManager.shared.userId else { return }
+        let existing = (try? await fetchAllTrophies()) ?? []
+        guard existing.isEmpty else { return }
+
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+        func daysAgo(_ n: Int) -> String {
+            let d = cal.date(byAdding: .day, value: -n, to: today) ?? today
+            let f = DateFormatter()
+            f.dateFormat = "yyyy-MM-dd"
+            return f.string(from: d)
+        }
+
+        let seeds: [(type: String, daysAgo: Int, streak: Int, cal: Double, pro: Double, fat: Double, carb: Double)] = [
+            ("single_day", 9,  1, 1923, 87, 64, 241),
+            ("single_day", 6,  1, 1978, 94, 61, 256),
+            ("three_day",  5,  3, 1952, 89, 63, 248),
+            ("single_day", 2,  1, 1961, 91, 67, 239),
+        ]
+
+        for s in seeds {
+            let insert = TrophyInsert(
+                id:                UUID(),
+                userId:            userId,
+                trophyType:        s.type,
+                earnedDate:        daysAgo(s.daysAgo),
+                streakDays:        s.streak,
+                nutritionSnapshot: TrophyNutritionSnapshot(
+                    calories: s.cal, protein: s.pro, fat: s.fat, carbohydrate: s.carb
+                )
+            )
+            try? await supabase.from("trophies").insert(insert).execute()
+        }
+        print("🏆 Demo trophies seeded")
     }
 
     // MARK: - Private Helpers

@@ -12,7 +12,7 @@ struct FoodIngredientView: View {
     var body: some View {
 
         HStack(alignment: .bottom){
-            Text(food.icon)
+            Text(String(food.icon.prefix(1)))
                 .font(.system(size: 25))
                 .padding(6)
                 .background(RoundedRectangle(cornerRadius: 10).fill(.backGroundDark))
@@ -32,10 +32,10 @@ struct FoodIngredientView: View {
                     HStack(spacing:0){
                         Rectangle()
                             .fill(.protein)
-                            .frame(width:(food.proteinPercent/food.available)*proxy.size.width)
+                            .frame(width:(food.proteinPercent/100)*proxy.size.width)
                         Rectangle()
                             .fill(.fat)
-                            .frame(width:(food.fatPercent/food.available)*proxy.size.width)
+                            .frame(width:(food.fatPercent/100)*proxy.size.width)
                         Rectangle()
                             .fill(.carbohydrate)
                     }
