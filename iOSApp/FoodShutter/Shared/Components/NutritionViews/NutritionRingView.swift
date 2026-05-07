@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-/// 营养成分圆环视图
+/// Circular ring view showing nutrition proportions
 struct NutritionRingView: View {
     let data: NutritionSummaryData
     let lineWidth: CGFloat = 20
 
     var body: some View {
         ZStack {
-            // 蛋白质圆环
+            // Protein ring
             Circle()
                 .trim(from: 0, to: data.proteinPercent / 100)
                 .stroke(
@@ -23,7 +23,7 @@ struct NutritionRingView: View {
                 )
                 .rotationEffect(.degrees(-90))
 
-            // 脂肪圆环
+            // Fat ring
             Circle()
                 .trim(
                     from: data.proteinPercent / 100,
@@ -35,7 +35,7 @@ struct NutritionRingView: View {
                 )
                 .rotationEffect(.degrees(-90))
 
-            // 碳水化合物圆环
+            // Carbohydrate ring
             Circle()
                 .trim(
                     from: (data.proteinPercent + data.fatPercent) / 100,
@@ -47,7 +47,7 @@ struct NutritionRingView: View {
                 )
                 .rotationEffect(.degrees(-90))
 
-            // 中心文字
+            // Center text
             VStack(spacing: 0) {
                 Text(String(format: "%.0f", data.totalCalories))
                     .font(.system(size: 32, weight: .bold, design: .serif))

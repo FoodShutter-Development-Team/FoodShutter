@@ -2,7 +2,7 @@
 //  DishDetailView.swift
 //  FoodShutter
 //
-//  最终修复版：移除内容几何匹配，使用自然过渡
+//  Final fix: removed content geometry matching in favour of natural transitions
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ struct DishDetailView: View {
 
     var body: some View {
         ZStack {
-            // 1. 背景层：保留匹配，负责撑开动画
+            // 1. Background layer: keeps the geometry match to drive the expand animation
             RoundedRectangle(cornerRadius: 15)
                 .fill(.backGround)
                 .matchedGeometryEffect(id: "\(dish.id)-background", in: namespace)
@@ -25,7 +25,7 @@ struct DishDetailView: View {
                 VStack(spacing: 20) {
                     Spacer().frame(height: 60)
 
-                    // 2. 头部信息视图
+                    // 2. Header info view
                     DishNutritionSummaryView(
                         ingredients: dish.ingredients,
                         title: dish.name,
@@ -33,9 +33,9 @@ struct DishDetailView: View {
                         namespace: namespace
                     )
                     .padding(.horizontal, 20)
-                    // [关键修复] 移除了 .matchedGeometryEffect
-                    // 改为使用 opacity 过渡，实现“渐变显现”
-                    // 配合背景的展开，视觉上就是“移上来并变出来的”
+                    // [Key fix] Removed .matchedGeometryEffect
+                    // Using opacity transition instead for a fade-in effect
+                    // Combined with the background expansion, it visually “slides up and fades in”
                     .transition(.opacity.animation(.easeInOut(duration: 0.3).delay(0.1)))
 
                     // Ingredients list
@@ -43,7 +43,7 @@ struct DishDetailView: View {
                         ForEach(Array(dish.ingredients.enumerated()), id: \.element.id) { index, ingredient in
                             FoodIngredientView(food: ingredient)
                                 .padding(.vertical, 10)
-                                // 列表项逐个飞入，增加层次感
+                                // List items fly in one by one for a layered feel
                                 .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
                     }
