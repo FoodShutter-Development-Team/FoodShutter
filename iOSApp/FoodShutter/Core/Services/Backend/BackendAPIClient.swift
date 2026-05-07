@@ -12,7 +12,7 @@ final class BackendAPIClient {
 
     // MARK: - Configuration
 
-    static let baseURL = "https://your-backend.example.com/api"
+    static let baseURL = "http://192.168.28.80:8000"
     static let shared  = BackendAPIClient()
 
     private let session: URLSession
