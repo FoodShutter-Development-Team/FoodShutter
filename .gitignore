@@ -8,6 +8,8 @@ __pycache__/
 
 # Environment
 .env
+.env.*
+!.env.example
 
 # Runtime artifacts
 results/
