@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FoodShutter web companion
 
-## Getting Started
+Next.js 16 / React 19 application for reviewing meals in Supabase, with Tailwind CSS 4, Recharts, Framer Motion, SWR and theme selection.
 
-First, run the development server:
+[Overview](../README.md) · [Setup](../docs/getting-started.md#4-start-the-web-companion) · [Capability status](../docs/architecture.md#capability-status)
+
+## Run locally
 
 ```bash
+cp .env.example .env.local
+npm ci
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Run from `web/`. In PowerShell use `Copy-Item .env.example .env.local`. Configure your own Supabase project, then open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public browser anon key |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+These values are browser-visible. Never supply a service-role key. Configure `/auth/callback` redirects and the login providers separately.
 
-## Learn More
+## Pages
 
-To learn more about Next.js, take a look at the following resources:
+| Route | Behavior |
+| --- | --- |
+| `/` | Product landing page |
+| `/login`, `/auth/callback` | Supabase authentication |
+| `/dashboard` | Intake summary and recent meals |
+| `/history`, `/history/[id]` | Meal history and detail |
+| `/stats` | Weekly/monthly calorie visualization |
+| `/nutrition`, `/nutrition/[id]` | Nutrition-search interface |
+| `/suggestions` | Current sample messages |
+| `/settings` | Theme and web nutrition goals |
+| `/about` | Application information |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Meal browsing reads `meals` and `dishes`. Settings use `user_profiles` and `nutrition_goals`, distinct from the mobile `profiles` contract. Provision tables and policies independently; no migrations are supplied.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Edge Function scaffolding
 
-## Deploy on Vercel
+`python-proxy` calls `${PYTHON_BACKEND_URL}/search`. The current FastAPI application lacks that route, so search needs a matching service implementation. `stats-aggregate` references `history_logs`, while the active chart adapter reads meals and dishes directly.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Validation and limits
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run lint
+npm run build
+```
+
+There is no committed web test suite. Suggestions return fixed messages; account deletion displays an alert; public photo URLs need reconciliation with private Storage. Calendar aggregation and the assumption that the first history group represents today need validation. See [release requirements](../docs/deployment.md).
+
+Framework code changes must follow [AGENTS.md](AGENTS.md), including consulting documentation shipped with the installed Next.js version.

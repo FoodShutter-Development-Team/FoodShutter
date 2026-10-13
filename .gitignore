@@ -3,11 +3,14 @@
 # Python
 .venv/
 __pycache__/
+.pytest_cache/
 *.pyc
 *.pyo
 
 # Environment
 .env
+.env.*
+!.env.example
 
 # Runtime artifacts
 results/
