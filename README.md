@@ -1,33 +1,26 @@
-<p align="center">
-  <img src="Appendix/appIcon.png" width="96" alt="FoodShutter app icon" />
-</p>
-
-<h1 align="center">FoodShutter</h1>
-
-<p align="center">Photo-based nutrition tracking, with a native iOS app and a web companion.</p>
+<h1 align="center"><a href="#demo"><img src="docs/assets/foodshutter-hero.svg" width="100%" alt="FoodShutter" /></a></h1>
 
 <p align="center">
-  <a href="LICENSE">MIT License</a> ·
-  <a href="iOSApp/project.yml">iOS 26+</a> ·
-  <a href="Backend/pyproject.toml">FastAPI</a> ·
-  <a href="web/package.json">Next.js 16</a>
+  <a href="#demo"><img src="docs/assets/nav-film.svg" width="23%" alt="Watch the complete film" /></a>
+  <a href="docs/getting-started.md"><img src="docs/assets/nav-setup.svg" width="23%" alt="Get started" /></a>
+  <a href="docs/architecture.md"><img src="docs/assets/nav-architecture.svg" width="23%" alt="Architecture" /></a>
+  <a href="README.zh-CN.md"><img src="docs/assets/nav-chinese.svg" width="23%" alt="简体中文" /></a>
 </p>
 
-<p align="center">
-  <a href="#demo">Demo</a> ·
-  <a href="docs/getting-started.md">Getting started</a> ·
-  <a href="docs/architecture.md">Architecture</a> ·
-  <a href="docs/README.md">Documentation</a> ·
-  <a href="README.zh-CN.md">简体中文</a>
-</p>
+<p align="center"><a href="LICENSE">MIT License</a> · <a href="iOSApp/project.yml">iOS 26+</a> · <a href="docs/README.md">Documentation</a></p>
 
 FoodShutter turns a meal photograph into detected dishes, ingredient estimates, calories and macronutrients. The iOS app captures meals and presents analysis in stages. A Python service combines vision models with nutrition retrieval, while Supabase stores accounts and meal records for both clients.
 
 The project was developed by a six-person team for a software project management course. This repository contains the working prototype, model experiments and engineering documentation. Running the full application requires configured cloud services; the [setup guide](docs/getting-started.md) and [release readiness notes](docs/deployment.md) describe the current requirements.
 
-## Demo
+<a name="demo"></a>
+<h2><img src="docs/assets/section-demo.svg" width="100%" alt="Demo" /></h2>
 
-Screens captured from the team's final presentation recording:
+The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations, with the original audio preserved.
+
+[Watch the complete iOS film, about 60 seconds](docs/assets/foodshutter-film.mp4)
+
+Screens captured from the same recording:
 
 <table>
   <tr>
@@ -42,7 +35,7 @@ Screens captured from the team's final presentation recording:
   </tr>
 </table>
 
-[Watch the iOS analysis excerpt, 22 seconds](docs/assets/ios-demo.mp4) · [Watch the web excerpt, 14 seconds](docs/assets/web-demo.mp4) · [Demo guide and media sources](docs/demo.md)
+[Full web walkthrough, about 35 seconds](docs/assets/web-walkthrough.mp4) · [Short iOS excerpt](docs/assets/ios-demo.mp4) · [Demo guide and media sources](docs/demo.md)
 
 <details>
   <summary>Web companion: meal history and nutrition trends</summary>
@@ -53,7 +46,8 @@ Screens captured from the team's final presentation recording:
 
 The recording shows the course demonstration build. Its displayed nutrition values are estimates; the current source and deployment requirements are documented separately.
 
-## What the project implements
+<a name="what-the-project-implements"></a>
+<h2><img src="docs/assets/section-features.svg" width="100%" alt="What the project implements" /></h2>
 
 | Capability | Implementation |
 | --- | --- |
@@ -67,7 +61,8 @@ The recording shows the course demonstration build. Its displayed nutrition valu
 
 Some course scope items remain incomplete: web suggestions use sample messages, web nutrition search needs a matching backend endpoint, and PDF/Excel export is not implemented in this tree. See the [capability status](docs/architecture.md#capability-status) for the distinction between implemented features, external dependencies and planned work.
 
-## System architecture
+<a name="system-architecture"></a>
+<h2><img src="docs/assets/section-architecture.svg" width="100%" alt="System architecture" /></h2>
 
 ![FoodShutter architecture: iOS and web clients, FastAPI analysis service, Supabase, model API and nutrition index](docs/assets/system-architecture.drawio.svg)
 
@@ -77,7 +72,8 @@ The model endpoint is configurable through an OpenAI-compatible API. Qwen3.5-9B 
 
 [Component responsibilities](docs/architecture.md) · [Data contracts](docs/data-model.md) · [API reference](docs/api.md)
 
-## Eight-step analysis
+<a name="eight-step-analysis"></a>
+<h2><img src="docs/assets/section-pipeline.svg" width="100%" alt="Eight-step analysis" /></h2>
 
 ![Eight-step analysis from detection through nutrition retrieval and advice](docs/assets/analysis-pipeline.drawio.svg)
 
@@ -94,7 +90,8 @@ Steps 4–6 use up to four worker threads per stage. Model calls request schema-
 
 [Pipeline details and limits](docs/ai-pipeline.md) · [Fine-tuning and model serving](docs/model-training.md)
 
-## Repository structure
+<a name="repository-structure"></a>
+<h2><img src="docs/assets/section-structure.svg" width="100%" alt="Repository structure" /></h2>
 
 ```text
 FoodShutter/
@@ -120,7 +117,8 @@ FoodShutter/
 └── docs/                         Architecture, setup, evaluation and demo assets
 ```
 
-## Run locally
+<a name="run-locally"></a>
+<h2><img src="docs/assets/section-setup.svg" width="100%" alt="Run locally" /></h2>
 
 | Component | Requirements | Entry point |
 | --- | --- | --- |
@@ -159,7 +157,8 @@ On macOS, open `iOSApp/FoodShutter.xcodeproj`, configure your own Supabase clien
 
 Database migrations, RLS policies and trained weights are not included. Complete [service provisioning](docs/getting-started.md#1-provision-supabase) before expecting authenticated meal analysis to work. The checked-in iOS target is iOS 26; the earlier course proposal's iOS 17 target does not describe the current build.
 
-## Evaluation and engineering
+<a name="evaluation-and-engineering"></a>
+<h2><img src="docs/assets/section-evaluation.svg" width="100%" alt="Evaluation and engineering" /></h2>
 
 The final presentation reports a five-angle demonstration of a seven-dish meal. Reported calorie variation was 6.4% for the pipeline and 22.1% for the presentation's baseline. This small comparison measures consistency across photographs, and does not establish nutrition accuracy. [Evaluation methods, results and limitations](docs/evaluation.md) preserve that distinction.
 
@@ -167,7 +166,8 @@ The existing backend test suite was rerun on 14 October 2026 against source base
 
 The course work also covers requirements, scope, estimation, Scrum planning, risk management and configuration control. Estimates and simulated reliability figures are identified as course exercises in the [project context](docs/project-context.md).
 
-## Team
+<a name="team"></a>
+<h2><img src="docs/assets/section-team.svg" width="100%" alt="Team" /></h2>
 
 Roles reported in the final course presentation:
 
@@ -182,8 +182,11 @@ Roles reported in the final course presentation:
 
 These roles credit the course team. Git authorship remains attached to actual repository commits.
 
-## Contributing and license
+<a name="contributing-and-license"></a>
+<h2><img src="docs/assets/section-contributing.svg" width="100%" alt="Contributing and license" /></h2>
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for development and review expectations, and [SECURITY.md](SECURITY.md) for credential handling and the current security scope.
 
 FoodShutter's source code is available under the [MIT License](LICENSE). Third-party models, training data and nutrition datasets have their own terms. The application provides estimated nutrition information and is outside the course's scope for medical diagnosis or treatment.
+
+<p><img src="docs/assets/foodshutter-footer.svg" width="100%" alt="FoodShutter: photo-based nutrition tracking" /></p>

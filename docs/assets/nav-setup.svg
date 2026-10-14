@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="60" viewBox="0 0 300 60" role="img" aria-labelledby="title">
+<title id="title">Get started</title>
+<style>@media(prefers-reduced-motion:reduce){.motion{display:none}}</style>
+<rect width="300" height="60" rx="24" fill="#fafaf0"/>
+<g font-family="Georgia, Times New Roman, serif" fill="#3d3d3a"><rect x="1" y="1" width="298" height="58" rx="28" fill="#f0eee7" stroke="#d8d6cd"/><text x="150" y="38" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-size="22" font-weight="700" fill="#d2785a">Get started</text></g>
+</svg>

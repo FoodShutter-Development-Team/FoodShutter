@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="72" viewBox="0 0 1260 72" role="img" aria-labelledby="title">
+<title id="title">FoodShutter: photo-based nutrition tracking</title>
+<style>@media(prefers-reduced-motion:reduce){.motion{display:none}}</style>
+<rect width="1260" height="72" rx="24" fill="#fafaf0"/>
+<g font-family="Georgia, Times New Roman, serif" fill="#3d3d3a"><path d="M30 8H1230" stroke="#d8d6cd"/><text x="30" y="48" font-size="26" font-weight="700">FoodShutter</text><text x="1230" y="46" text-anchor="end" font-size="17" fill="#63635e">Photo-based nutrition tracking</text></g>
+</svg>

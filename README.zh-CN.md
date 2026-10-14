@@ -1,26 +1,26 @@
-<p align="center">
-  <img src="Appendix/appIcon.png" width="96" alt="FoodShutter 应用图标" />
-</p>
-
-<h1 align="center">FoodShutter</h1>
-
-<p align="center">通过餐食照片记录营养，提供原生 iOS 应用和网页端。</p>
+<h1 align="center"><a href="#演示"><img src="docs/assets/foodshutter-hero.zh-CN.svg" width="100%" alt="FoodShutter" /></a></h1>
 
 <p align="center">
-  <a href="README.md">English</a> ·
-  <a href="#演示">演示</a> ·
-  <a href="docs/getting-started.md">运行指南</a> ·
-  <a href="docs/architecture.md">系统架构</a> ·
-  <a href="docs/README.md">技术文档</a>
+  <a href="#演示"><img src="docs/assets/nav-film.svg" width="23%" alt="Watch the complete film" /></a>
+  <a href="docs/getting-started.md"><img src="docs/assets/nav-setup.svg" width="23%" alt="Get started" /></a>
+  <a href="docs/architecture.md"><img src="docs/assets/nav-architecture.svg" width="23%" alt="Architecture" /></a>
+  <a href="README.md"><img src="docs/assets/nav-english.svg" width="23%" alt="English" /></a>
 </p>
+
+<p align="center"><a href="LICENSE">MIT License</a> · <a href="iOSApp/project.yml">iOS 26+</a> · <a href="docs/README.md">技术文档</a></p>
 
 FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量和宏量营养，并结合用户资料及近期饮食生成建议。iOS 负责拍摄与结果展示，Python 后端执行分析，Supabase 保存账户和餐食记录，网页端提供历史与统计视图。
 
 本项目由六人团队完成，是软件项目管理课程作业。仓库包含可运行原型、模型实验和工程文档。完整运行需要自行配置云服务；项目当前的运行条件和发布前要求见[运行指南](docs/getting-started.md)与[部署说明](docs/deployment.md)。
 
-## 演示
+<a name="演示"></a>
+<h2><img src="docs/assets/section-demo.zh-CN.svg" width="100%" alt="演示" /></h2>
 
-以下截图来自团队期末汇报中的实际录屏。
+完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程，以及原始音轨。
+
+[观看完整 iOS 宣传演示，约 60 秒](docs/assets/foodshutter-film.mp4)
+
+以下截图来自同一段实际录屏。
 
 <table>
   <tr><th>拍摄餐食</th><th>查看整餐营养</th><th>查看食材明细</th></tr>
@@ -31,7 +31,7 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
   </tr>
 </table>
 
-[观看 iOS 视频节选，22 秒](docs/assets/ios-demo.mp4) · [观看网页端视频节选，14 秒](docs/assets/web-demo.mp4) · [素材来源](docs/demo.md)
+[完整网页录像，约 35 秒](docs/assets/web-walkthrough.mp4) · [iOS 精简节选](docs/assets/ios-demo.mp4) · [素材来源](docs/demo.md)
 
 <details>
   <summary>网页端营养统计</summary>
@@ -41,7 +41,8 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
 
 录屏展示课程演示版本，页面中的营养值属于估算结果。当前源码与演示版本的差异在技术文档中单独说明。
 
-## 功能
+<a name="功能"></a>
+<h2><img src="docs/assets/section-features.zh-CN.svg" width="100%" alt="功能" /></h2>
 
 | 功能 | 当前实现 |
 | --- | --- |
@@ -55,7 +56,8 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
 
 网页建议当前使用示例消息；营养搜索代理需要尚未提供的 `/search` 接口；Excel/PDF 导出仍属于课程规划内容。[功能状态表](docs/architecture.md#capability-status)列出了已实现内容和外部依赖。
 
-## 系统架构
+<a name="系统架构"></a>
+<h2><img src="docs/assets/section-architecture.zh-CN.svg" width="100%" alt="系统架构" /></h2>
 
 ![FoodShutter 系统架构](docs/assets/system-architecture.drawio.svg)
 
@@ -65,7 +67,8 @@ iOS 使用 SwiftUI、MVVM 和 Repository 分工。客户端向 `POST /analyze` �
 
 [架构与职责](docs/architecture.md) · [数据模型与单位](docs/data-model.md) · [API 说明](docs/api.md)
 
-## 八步分析
+<a name="八步分析"></a>
+<h2><img src="docs/assets/section-pipeline.zh-CN.svg" width="100%" alt="八步分析" /></h2>
 
 ![FoodShutter 八步分析流程](docs/assets/analysis-pipeline.drawio.svg)
 
@@ -82,7 +85,8 @@ iOS 使用 SwiftUI、MVVM 和 Repository 分工。客户端向 `POST /analyze` �
 
 [流程与限制](docs/ai-pipeline.md) · [模型训练与服务](docs/model-training.md)
 
-## 项目结构
+<a name="项目结构"></a>
+<h2><img src="docs/assets/section-structure.zh-CN.svg" width="100%" alt="项目结构" /></h2>
 
 ```text
 iOSApp/
@@ -106,7 +110,8 @@ web/
 docs/                      架构、运行、评估与演示资料
 ```
 
-## 运行
+<a name="运行"></a>
+<h2><img src="docs/assets/section-setup.zh-CN.svg" width="100%" alt="运行" /></h2>
 
 | 组件 | 环境 |
 | --- | --- |
@@ -129,7 +134,8 @@ uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 数据库迁移、RLS 策略和训练权重没有包含在仓库中。完整运行前需完成[服务配置](docs/getting-started.md#1-provision-supabase)。后端模拟测试可独立于实际云服务执行。
 
-## 评估与质量
+<a name="评估与质量"></a>
+<h2><img src="docs/assets/section-evaluation.zh-CN.svg" width="100%" alt="评估与质量" /></h2>
 
 期末 PPT 报告了同一份七道菜餐食的五个视角比较：热量变异系数为流程 6.4%、基线 22.1%。这说明该小样例中的跨视角一致性，不能证明普遍的营养准确率。方法、原始证据范围和限制见[评估说明](docs/evaluation.md)。
 
@@ -139,7 +145,8 @@ uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 课程中的需求、估算、Scrum、风险和配置管理材料见[项目背景](docs/project-context.md)。其中可靠性与可用性数据属于模拟计算，CMM 等级属于课程自评。
 
-## 团队
+<a name="团队"></a>
+<h2><img src="docs/assets/section-team.zh-CN.svg" width="100%" alt="团队" /></h2>
 
 | 成员 | 期末汇报记录的职责 |
 | --- | --- |
@@ -152,6 +159,9 @@ uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 团队职责用于课程贡献说明，Git 作者信息保留真实提交归属。
 
-## 参与开发与许可
+<a name="参与开发与许可"></a>
+<h2><img src="docs/assets/section-contributing.zh-CN.svg" width="100%" alt="参与开发与许可" /></h2>
 
 开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，凭据和当前安全设置见 [SECURITY.md](SECURITY.md)。项目代码采用 [MIT 许可](LICENSE)。模型、训练数据和营养数据遵守各自许可。本应用提供营养估算，不在课程中的医疗诊断或治疗范围内。
+
+<p><img src="docs/assets/foodshutter-footer.svg" width="100%" alt="FoodShutter: photo-based nutrition tracking" /></p>
