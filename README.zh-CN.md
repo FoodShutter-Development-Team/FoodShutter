@@ -13,7 +13,7 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
 
 本项目由六人团队完成，是软件项目管理课程作业。仓库包含可运行原型、模型实验和工程文档。完整运行需要自行配置云服务；项目当前的运行条件和发布前要求见[运行指南](docs/getting-started.md)与[部署说明](docs/deployment.md)。
 
-<a name="演示"></a>
+<a name="演示" id="演示"></a>
 <h2><img src="docs/assets/section-demo.zh-CN.svg" width="100%" alt="演示" /></h2>
 
 完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程，以及原始音轨。
@@ -47,7 +47,7 @@ https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
 
 录屏展示课程演示版本，页面中的营养值属于估算结果。当前源码与演示版本的差异在技术文档中单独说明。
 
-<a name="功能"></a>
+<a name="功能" id="功能"></a>
 <h2><img src="docs/assets/section-features.zh-CN.svg" width="100%" alt="功能" /></h2>
 
 | 功能 | 当前实现 |
@@ -62,7 +62,7 @@ https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
 
 网页建议当前使用示例消息；营养搜索代理需要尚未提供的 `/search` 接口；Excel/PDF 导出仍属于课程规划内容。[功能状态表](docs/architecture.md#capability-status)列出了已实现内容和外部依赖。
 
-<a name="系统架构"></a>
+<a name="系统架构" id="系统架构"></a>
 <h2><img src="docs/assets/section-architecture.zh-CN.svg" width="100%" alt="系统架构" /></h2>
 
 ![FoodShutter 系统架构](docs/assets/system-architecture.drawio.svg)
@@ -73,7 +73,7 @@ iOS 使用 SwiftUI、MVVM 和 Repository 分工。客户端向 `POST /analyze` �
 
 [架构与职责](docs/architecture.md) · [数据模型与单位](docs/data-model.md) · [API 说明](docs/api.md)
 
-<a name="八步分析"></a>
+<a name="八步分析" id="八步分析"></a>
 <h2><img src="docs/assets/section-pipeline.zh-CN.svg" width="100%" alt="八步分析" /></h2>
 
 ![FoodShutter 八步分析流程](docs/assets/analysis-pipeline.drawio.svg)
@@ -91,7 +91,7 @@ iOS 使用 SwiftUI、MVVM 和 Repository 分工。客户端向 `POST /analyze` �
 
 [流程与限制](docs/ai-pipeline.md) · [模型训练与服务](docs/model-training.md)
 
-<a name="项目结构"></a>
+<a name="项目结构" id="项目结构"></a>
 <h2><img src="docs/assets/section-structure.zh-CN.svg" width="100%" alt="项目结构" /></h2>
 
 ```text
@@ -116,7 +116,7 @@ web/
 docs/                      架构、运行、评估与演示资料
 ```
 
-<a name="运行"></a>
+<a name="运行" id="运行"></a>
 <h2><img src="docs/assets/section-setup.zh-CN.svg" width="100%" alt="运行" /></h2>
 
 | 组件 | 环境 |
@@ -140,7 +140,7 @@ uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 数据库迁移、RLS 策略和训练权重没有包含在仓库中。完整运行前需完成[服务配置](docs/getting-started.md#1-provision-supabase)。后端模拟测试可独立于实际云服务执行。
 
-<a name="评估与质量"></a>
+<a name="评估与质量" id="评估与质量"></a>
 <h2><img src="docs/assets/section-evaluation.zh-CN.svg" width="100%" alt="评估与质量" /></h2>
 
 期末 PPT 报告了同一份七道菜餐食的五个视角比较：热量变异系数为流程 6.4%、基线 22.1%。这说明该小样例中的跨视角一致性，不能证明普遍的营养准确率。方法、原始证据范围和限制见[评估说明](docs/evaluation.md)。
@@ -151,7 +151,7 @@ uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 课程中的需求、估算、Scrum、风险和配置管理材料见[项目背景](docs/project-context.md)。其中可靠性与可用性数据属于模拟计算，CMM 等级属于课程自评。
 
-<a name="团队"></a>
+<a name="团队" id="团队"></a>
 <h2><img src="docs/assets/section-team.zh-CN.svg" width="100%" alt="团队" /></h2>
 
 | 成员 | 期末汇报记录的职责 |
@@ -165,7 +165,7 @@ uv run uvicorn api.main:app --host 0.0.0.0 --port 8000
 
 团队职责用于课程贡献说明，Git 作者信息保留真实提交归属。
 
-<a name="参与开发与许可"></a>
+<a name="参与开发与许可" id="参与开发与许可"></a>
 <h2><img src="docs/assets/section-contributing.zh-CN.svg" width="100%" alt="参与开发与许可" /></h2>
 
 开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，凭据和当前安全设置见 [SECURITY.md](SECURITY.md)。项目代码采用 [MIT 许可](LICENSE)。模型、训练数据和营养数据遵守各自许可。本应用提供营养估算，不在课程中的医疗诊断或治疗范围内。

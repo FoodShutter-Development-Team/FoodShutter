@@ -57,7 +57,7 @@ def brand_hero():
 
 def sections_and_navigation():
     sections={
-      'demo':'The complete film', 'features':'What FoodShutter does',
+      'demo':'Complete film', 'features':'What FoodShutter does',
       'architecture':'System architecture', 'pipeline':'Eight-step analysis',
       'structure':'Repository structure', 'setup':'Run locally',
       'evaluation':'Evaluation and engineering', 'team':'The course team',
