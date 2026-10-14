@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="72" viewBox="0 0 160 72" role="img" aria-labelledby="title">
+<title id="title">Watch the film</title>
+<style>@media(prefers-reduced-motion:reduce){.motion{display:none}}</style>
+<rect width="160" height="72" rx="24" fill="#fafaf0"/>
+<g font-family="Georgia, Times New Roman, serif" fill="#3d3d3a"><rect x="1" y="1" width="158" height="70" rx="28" fill="#f0eee7" stroke="#d8d6cd"/><text x="80" y="45" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-size="24" font-weight="700" fill="#d2785a">Film</text></g>
+</svg>

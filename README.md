@@ -1,10 +1,10 @@
-<h1 align="center"><a href="#demo"><img src="docs/assets/foodshutter-hero.svg" width="100%" alt="FoodShutter" /></a></h1>
+<h1 align="center"><a href="#demo"><picture><source media="(max-width: 600px)" srcset="docs/assets/foodshutter-hero.mobile.svg" /><img src="docs/assets/foodshutter-hero.svg" width="100%" alt="FoodShutter" /></picture></a></h1>
 
 <p align="center">
-  <a href="#demo"><img src="docs/assets/nav-film.svg" width="23%" alt="Watch the complete film" /></a>
-  <a href="docs/getting-started.md"><img src="docs/assets/nav-setup.svg" width="23%" alt="Get started" /></a>
-  <a href="docs/architecture.md"><img src="docs/assets/nav-architecture.svg" width="23%" alt="Architecture" /></a>
-  <a href="README.zh-CN.md"><img src="docs/assets/nav-chinese.svg" width="23%" alt="简体中文" /></a>
+  <a href="#demo"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-film.mobile.svg" /><img src="docs/assets/nav-film.svg" width="23%" alt="Watch the complete film" /></picture></a>
+  <a href="docs/getting-started.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-setup.mobile.svg" /><img src="docs/assets/nav-setup.svg" width="23%" alt="Get started" /></picture></a>
+  <a href="docs/architecture.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-architecture.mobile.svg" /><img src="docs/assets/nav-architecture.svg" width="23%" alt="Architecture" /></picture></a>
+  <a href="README.zh-CN.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-chinese.mobile.svg" /><img src="docs/assets/nav-chinese.svg" width="23%" alt="简体中文" /></picture></a>
 </p>
 
 <p align="center"><a href="LICENSE">MIT License</a> · <a href="iOSApp/project.yml">iOS 26+</a> · <a href="docs/README.md">Documentation</a></p>
@@ -14,7 +14,7 @@ FoodShutter turns a meal photograph into detected dishes, ingredient estimates, 
 The project was developed by a six-person team for a software project management course. This repository contains the working prototype, model experiments and engineering documentation. Running the full application requires configured cloud services; the [setup guide](docs/getting-started.md) and [release readiness notes](docs/deployment.md) describe the current requirements.
 
 <a name="demo" id="demo"></a>
-<h2><img src="docs/assets/section-demo.svg" width="100%" alt="Demo" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-demo.mobile.svg" /><img src="docs/assets/section-demo.svg" width="100%" alt="Demo" /></picture></h2>
 
 The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations, with the original audio preserved.
 
@@ -53,7 +53,7 @@ https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
 The recording shows the course demonstration build. Its displayed nutrition values are estimates; the current source and deployment requirements are documented separately.
 
 <a name="what-the-project-implements" id="what-the-project-implements"></a>
-<h2><img src="docs/assets/section-features.svg" width="100%" alt="What the project implements" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-features.mobile.svg" /><img src="docs/assets/section-features.svg" width="100%" alt="What the project implements" /></picture></h2>
 
 | Capability | Implementation |
 | --- | --- |
@@ -68,7 +68,7 @@ The recording shows the course demonstration build. Its displayed nutrition valu
 Some course scope items remain incomplete: web suggestions use sample messages, web nutrition search needs a matching backend endpoint, and PDF/Excel export is not implemented in this tree. See the [capability status](docs/architecture.md#capability-status) for the distinction between implemented features, external dependencies and planned work.
 
 <a name="system-architecture" id="system-architecture"></a>
-<h2><img src="docs/assets/section-architecture.svg" width="100%" alt="System architecture" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-architecture.mobile.svg" /><img src="docs/assets/section-architecture.svg" width="100%" alt="System architecture" /></picture></h2>
 
 ![FoodShutter architecture: iOS and web clients, FastAPI analysis service, Supabase, model API and nutrition index](docs/assets/system-architecture.drawio.svg)
 
@@ -79,7 +79,7 @@ The model endpoint is configurable through an OpenAI-compatible API. Qwen3.5-9B 
 [Component responsibilities](docs/architecture.md) · [Data contracts](docs/data-model.md) · [API reference](docs/api.md)
 
 <a name="eight-step-analysis" id="eight-step-analysis"></a>
-<h2><img src="docs/assets/section-pipeline.svg" width="100%" alt="Eight-step analysis" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-pipeline.mobile.svg" /><img src="docs/assets/section-pipeline.svg" width="100%" alt="Eight-step analysis" /></picture></h2>
 
 ![Eight-step analysis from detection through nutrition retrieval and advice](docs/assets/analysis-pipeline.drawio.svg)
 
@@ -97,7 +97,7 @@ Steps 4–6 use up to four worker threads per stage. Model calls request schema-
 [Pipeline details and limits](docs/ai-pipeline.md) · [Fine-tuning and model serving](docs/model-training.md)
 
 <a name="repository-structure" id="repository-structure"></a>
-<h2><img src="docs/assets/section-structure.svg" width="100%" alt="Repository structure" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-structure.mobile.svg" /><img src="docs/assets/section-structure.svg" width="100%" alt="Repository structure" /></picture></h2>
 
 ```text
 FoodShutter/
@@ -124,7 +124,7 @@ FoodShutter/
 ```
 
 <a name="run-locally" id="run-locally"></a>
-<h2><img src="docs/assets/section-setup.svg" width="100%" alt="Run locally" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-setup.mobile.svg" /><img src="docs/assets/section-setup.svg" width="100%" alt="Run locally" /></picture></h2>
 
 | Component | Requirements | Entry point |
 | --- | --- | --- |
@@ -164,7 +164,7 @@ On macOS, open `iOSApp/FoodShutter.xcodeproj`, configure your own Supabase clien
 Database migrations, RLS policies and trained weights are not included. Complete [service provisioning](docs/getting-started.md#1-provision-supabase) before expecting authenticated meal analysis to work. The checked-in iOS target is iOS 26; the earlier course proposal's iOS 17 target does not describe the current build.
 
 <a name="evaluation-and-engineering" id="evaluation-and-engineering"></a>
-<h2><img src="docs/assets/section-evaluation.svg" width="100%" alt="Evaluation and engineering" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-evaluation.mobile.svg" /><img src="docs/assets/section-evaluation.svg" width="100%" alt="Evaluation and engineering" /></picture></h2>
 
 The final presentation reports a five-angle demonstration of a seven-dish meal. Reported calorie variation was 6.4% for the pipeline and 22.1% for the presentation's baseline. This small comparison measures consistency across photographs, and does not establish nutrition accuracy. [Evaluation methods, results and limitations](docs/evaluation.md) preserve that distinction.
 
@@ -173,7 +173,7 @@ The existing backend test suite was rerun on 14 October 2026 against source base
 The course work also covers requirements, scope, estimation, Scrum planning, risk management and configuration control. Estimates and simulated reliability figures are identified as course exercises in the [project context](docs/project-context.md).
 
 <a name="team" id="team"></a>
-<h2><img src="docs/assets/section-team.svg" width="100%" alt="Team" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-team.mobile.svg" /><img src="docs/assets/section-team.svg" width="100%" alt="Team" /></picture></h2>
 
 Roles reported in the final course presentation:
 
@@ -189,7 +189,7 @@ Roles reported in the final course presentation:
 These roles credit the course team. Git authorship remains attached to actual repository commits.
 
 <a name="contributing-and-license" id="contributing-and-license"></a>
-<h2><img src="docs/assets/section-contributing.svg" width="100%" alt="Contributing and license" /></h2>
+<h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-contributing.mobile.svg" /><img src="docs/assets/section-contributing.svg" width="100%" alt="Contributing and license" /></picture></h2>
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for development and review expectations, and [SECURITY.md](SECURITY.md) for credential handling and the current security scope.
 

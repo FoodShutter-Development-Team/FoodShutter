@@ -54,6 +54,28 @@ def brand_hero():
     write_svg('foodshutter-hero.svg',1260,370,'FoodShutter: photograph a meal and review its nutrition',body)
     chinese=body.replace('Photograph a meal.','拍摄餐食。').replace('Review its nutrition.','查看营养。').replace('Native capture, ingredient detail and a shared meal history.','原生拍摄、食材明细与跨设备餐食记录。')
     write_svg('foodshutter-hero.zh-CN.svg',1260,370,'FoodShutter：拍摄餐食，查看营养',chinese)
+    for suffix,is_zh in [('',False),('.zh-CN',True)]:
+        first='拍摄餐食。' if is_zh else 'Photograph a meal.'
+        second='查看营养。' if is_zh else 'Review its nutrition.'
+        caption='原生拍摄与食材明细。' if is_zh else 'Native capture and ingredient detail.'
+        body=f'''<image x="36" y="30" width="50" height="50" href="data:image/png;base64,{icon}"/>
+<text x="106" y="77" font-size="56" font-weight="700">FoodShutter</text>
+<text x="36" y="151" font-size="32">{first}</text><text x="36" y="193" font-size="32">{second}</text>
+<text x="36" y="260" font-size="22" fill="{MUTED}">{caption}</text>
+<circle cx="566" cy="182" r="88" fill="none" stroke="{SURFACE}" stroke-width="18"/>
+<g transform="rotate(-90 566 182)">
+<circle cx="566" cy="182" r="88" fill="none" stroke="{PROTEIN}" stroke-width="18" pathLength="100" stroke-dasharray="43 100"/>
+<circle cx="566" cy="182" r="88" fill="none" stroke="{FAT}" stroke-width="18" pathLength="100" stroke-dasharray="12 100" stroke-dashoffset="-44"/>
+<circle cx="566" cy="182" r="88" fill="none" stroke="{CARB}" stroke-width="18" pathLength="100" stroke-dasharray="43 100" stroke-dashoffset="-57"/>
+</g>
+<text x="566" y="178" text-anchor="middle" font-size="32" font-weight="700">Meal</text><text x="566" y="211" text-anchor="middle" font-size="25">nutrition</text>
+<g class="motion"><circle cx="566" cy="182" r="108" fill="none" stroke="{ACCENT}" opacity="0.25"><animate attributeName="r" values="104;110;104" dur="6s" repeatCount="indefinite"/></circle></g>
+<path d="M36 311H684" stroke="#d8d6cd"/>
+<text x="36" y="350" font-size="22" fill="{MUTED}">SwiftUI</text><text x="214" y="350" font-size="22" fill="{MUTED}">FastAPI</text><text x="392" y="350" font-size="22" fill="{MUTED}">Supabase</text><text x="578" y="350" font-size="22" fill="{MUTED}">Next.js</text>
+<circle cx="44" cy="393" r="6" fill="{PROTEIN}"/><text x="60" y="400" font-size="20" fill="{MUTED}">Protein</text>
+<circle cx="266" cy="393" r="6" fill="{FAT}"/><text x="282" y="400" font-size="20" fill="{MUTED}">Fat</text>
+<circle cx="488" cy="393" r="6" fill="{CARB}"/><text x="504" y="400" font-size="20" fill="{MUTED}">Carbs</text>'''
+        write_svg(f'foodshutter-hero.mobile{suffix}.svg',720,430,'FoodShutter',body)
 
 def sections_and_navigation():
     sections={
@@ -66,15 +88,22 @@ def sections_and_navigation():
     for name,label in sections.items():
         body=f'<rect x="0" y="12" width="4" height="46" rx="2" fill="{ACCENT}"/><text x="26" y="48" font-size="32" font-weight="700">{escape(label)}</text><path d="M26 69H1230" stroke="#d8d6cd"/>'
         write_svg(f'section-{name}.svg',1260,78,label,body)
+        mobile=f'<rect x="0" y="12" width="4" height="61" rx="2" fill="{ACCENT}"/><text x="22" y="58" font-size="38" font-weight="700">{escape(label)}</text><path d="M22 90H690" stroke="#d8d6cd"/>'
+        write_svg(f'section-{name}.mobile.svg',720,98,label,mobile)
     zh_labels={'demo':'完整宣传演示','features':'功能与体验','architecture':'系统架构','pipeline':'八步分析流程','structure':'项目结构','setup':'运行指南','evaluation':'评估与工程质量','team':'课程项目团队','contributing':'开发与许可'}
     for name,label in zh_labels.items():
         body=f'<rect x="0" y="12" width="4" height="46" rx="2" fill="{ACCENT}"/><text x="26" y="48" font-family="Georgia, Noto Serif CJK SC, SimSun, serif" font-size="32" font-weight="700">{escape(label)}</text><path d="M26 69H1230" stroke="#d8d6cd"/>'
         write_svg(f'section-{name}.zh-CN.svg',1260,78,label,body)
+        mobile=f'<rect x="0" y="12" width="4" height="61" rx="2" fill="{ACCENT}"/><text x="22" y="58" font-family="Georgia, Noto Serif CJK SC, SimSun, serif" font-size="38" font-weight="700">{escape(label)}</text><path d="M22 90H690" stroke="#d8d6cd"/>'
+        write_svg(f'section-{name}.mobile.zh-CN.svg',720,98,label,mobile)
     buttons={'film':'Watch the film','setup':'Get started','architecture':'Architecture','chinese':'简体中文','english':'English'}
     for name,label in buttons.items():
         family='Georgia, Noto Serif CJK SC, SimSun, serif' if name=='chinese' else SERIF
         body=f'<rect x="1" y="1" width="298" height="58" rx="28" fill="{SURFACE}" stroke="#d8d6cd"/><text x="150" y="38" text-anchor="middle" font-family="{family}" font-size="22" font-weight="700" fill="{ACCENT}">{escape(label)}</text>'
         write_svg(f'nav-{name}.svg',300,60,label,body)
+        short={'film':'Film','setup':'Setup','architecture':'Design','chinese':'中文','english':'English'}[name]
+        body=f'<rect x="1" y="1" width="158" height="70" rx="28" fill="{SURFACE}" stroke="#d8d6cd"/><text x="80" y="45" text-anchor="middle" font-family="{family}" font-size="24" font-weight="700" fill="{ACCENT}">{short}</text>'
+        write_svg(f'nav-{name}.mobile.svg',160,72,label,body)
     body=f'<path d="M30 8H1230" stroke="#d8d6cd"/><text x="30" y="48" font-size="26" font-weight="700">FoodShutter</text><text x="1230" y="46" text-anchor="end" font-size="17" fill="{MUTED}">Photo-based nutrition tracking</text>'
     write_svg('foodshutter-footer.svg',1260,72,'FoodShutter: photo-based nutrition tracking',body)
 
