@@ -22,5 +22,20 @@
       "sha256": "cad9fd55f238b22a232460849330cd65679dc264eeb4e5eb9020f0e421c0740c",
       "encoding": "H.264 video, 30 fps, AAC audio; complete duration, no temporal cuts"
     }
+  ],
+  "previews": [
+    {
+      "file": "foodshutter-preview.webp",
+      "source_file": "foodshutter-film.mp4",
+      "duration_seconds": 60.2,
+      "width": 360,
+      "height": 782,
+      "fps": 10,
+      "frames": 590,
+      "loop": 0,
+      "audio": false,
+      "bytes": 6606906,
+      "sha256": "7817f82cd55cae93321c943a37ee914b55a26076e8a6e8fc02b2c51ac71418ab"
+    }
   ]
 }

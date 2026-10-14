@@ -1,13 +1,25 @@
-<h1 align="center"><a href="#demo"><picture><source media="(max-width: 600px)" srcset="docs/assets/foodshutter-hero.mobile.svg" /><img src="docs/assets/foodshutter-hero.svg" width="100%" alt="FoodShutter" /></picture></a></h1>
-
 <p align="center">
-  <a href="#demo"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-film.mobile.svg" /><img src="docs/assets/nav-film.svg" width="23%" alt="Watch the complete film" /></picture></a>
-  <a href="docs/getting-started.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-setup.mobile.svg" /><img src="docs/assets/nav-setup.svg" width="23%" alt="Get started" /></picture></a>
-  <a href="docs/architecture.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-architecture.mobile.svg" /><img src="docs/assets/nav-architecture.svg" width="23%" alt="Architecture" /></picture></a>
-  <a href="README.zh-CN.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-chinese.mobile.svg" /><img src="docs/assets/nav-chinese.svg" width="23%" alt="简体中文" /></picture></a>
+  <img src="Appendix/appIcon.png" width="96" alt="FoodShutter app icon" />
 </p>
 
-<p align="center"><a href="LICENSE">MIT License</a> · <a href="iOSApp/project.yml">iOS 26+</a> · <a href="docs/README.md">Documentation</a></p>
+<h1 align="center">FoodShutter</h1>
+
+<p align="center">Photo-based nutrition tracking, with a native iOS app and a web companion.</p>
+
+<p align="center">
+  <a href="LICENSE">MIT License</a> ·
+  <a href="iOSApp/project.yml">iOS 26+</a> ·
+  <a href="Backend/pyproject.toml">FastAPI</a> ·
+  <a href="web/package.json">Next.js 16</a>
+</p>
+
+<p align="center">
+  <a href="#demo">Demo</a> ·
+  <a href="docs/getting-started.md">Getting started</a> ·
+  <a href="docs/architecture.md">Architecture</a> ·
+  <a href="docs/README.md">Documentation</a> ·
+  <a href="README.zh-CN.md">简体中文</a>
+</p>
 
 FoodShutter turns a meal photograph into detected dishes, ingredient estimates, calories and macronutrients. The iOS app captures meals and presents analysis in stages. A Python service combines vision models with nutrition retrieval, while Supabase stores accounts and meal records for both clients.
 
@@ -16,11 +28,25 @@ The project was developed by a six-person team for a software project management
 <a name="demo" id="demo"></a>
 <h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-demo.mobile.svg" /><img src="docs/assets/section-demo.svg" width="100%" alt="Demo" /></picture></h2>
 
-The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations, with the original audio preserved.
+The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations. The silent preview below loops automatically; expand the player to watch with the original audio.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/ios-nutrition.png" />
+    <img src="docs/assets/foodshutter-preview.webp" width="360" alt="Complete FoodShutter demonstration: sign-in, capture, nutrition analysis and recommendations" />
+  </picture>
+</p>
+
+<details>
+  <summary>Play the complete film with audio, about 60 seconds</summary>
+  <div align="center">
 
 https://github.com/user-attachments/assets/7c632762-cb31-401a-aae9-c211d5f3af00
 
-[Complete video file](docs/assets/foodshutter-film.mp4)
+  </div>
+</details>
+
+<p align="center"><a href="docs/assets/foodshutter-film.mp4">Complete video file</a></p>
 
 Screens captured from the same recording:
 
@@ -44,10 +70,11 @@ Screens captured from the same recording:
   <br />
   <img src="docs/assets/web-statistics.png" width="1000" alt="FoodShutter web statistics page with a weekly calorie chart" />
   <p>The web client reads shared meal records and provides a dashboard, history, weekly or monthly statistics, and appearance settings.</p>
-
+<div align="center">
 
 https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
 
+</div>
 </details>
 
 The recording shows the course demonstration build. Its displayed nutrition values are estimates; the current source and deployment requirements are documented separately.

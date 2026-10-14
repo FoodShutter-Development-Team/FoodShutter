@@ -1,13 +1,18 @@
-<h1 align="center"><a href="#演示"><picture><source media="(max-width: 600px)" srcset="docs/assets/foodshutter-hero.mobile.zh-CN.svg" /><img src="docs/assets/foodshutter-hero.zh-CN.svg" width="100%" alt="FoodShutter" /></picture></a></h1>
-
 <p align="center">
-  <a href="#演示"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-film.mobile.svg" /><img src="docs/assets/nav-film.svg" width="23%" alt="Watch the complete film" /></picture></a>
-  <a href="docs/getting-started.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-setup.mobile.svg" /><img src="docs/assets/nav-setup.svg" width="23%" alt="Get started" /></picture></a>
-  <a href="docs/architecture.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-architecture.mobile.svg" /><img src="docs/assets/nav-architecture.svg" width="23%" alt="Architecture" /></picture></a>
-  <a href="README.md"><picture><source media="(max-width: 600px)" srcset="docs/assets/nav-english.mobile.svg" /><img src="docs/assets/nav-english.svg" width="23%" alt="English" /></picture></a>
+  <img src="Appendix/appIcon.png" width="96" alt="FoodShutter 应用图标" />
 </p>
 
-<p align="center"><a href="LICENSE">MIT License</a> · <a href="iOSApp/project.yml">iOS 26+</a> · <a href="docs/README.md">技术文档</a></p>
+<h1 align="center">FoodShutter</h1>
+
+<p align="center">通过餐食照片记录营养，提供原生 iOS 应用和网页端。</p>
+
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="#演示">演示</a> ·
+  <a href="docs/getting-started.md">运行指南</a> ·
+  <a href="docs/architecture.md">系统架构</a> ·
+  <a href="docs/README.md">技术文档</a>
+</p>
 
 FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量和宏量营养，并结合用户资料及近期饮食生成建议。iOS 负责拍摄与结果展示，Python 后端执行分析，Supabase 保存账户和餐食记录，网页端提供历史与统计视图。
 
@@ -16,11 +21,25 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
 <a name="演示" id="演示"></a>
 <h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-demo.mobile.zh-CN.svg" /><img src="docs/assets/section-demo.zh-CN.svg" width="100%" alt="演示" /></picture></h2>
 
-完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程，以及原始音轨。
+完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程。下方无声预览自动循环播放，展开播放器可观看保留原始音轨的完整视频。
+
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/ios-nutrition.png" />
+    <img src="docs/assets/foodshutter-preview.webp" width="360" alt="FoodShutter 完整演示：登录、拍摄、营养分析与建议" />
+  </picture>
+</p>
+
+<details>
+  <summary>播放完整有声视频，约 60 秒</summary>
+  <div align="center">
 
 https://github.com/user-attachments/assets/7c632762-cb31-401a-aae9-c211d5f3af00
 
-[完整视频文件](docs/assets/foodshutter-film.mp4)
+  </div>
+</details>
+
+<p align="center"><a href="docs/assets/foodshutter-film.mp4">完整视频文件</a></p>
 
 以下截图来自同一段实际录屏。
 
@@ -39,10 +58,11 @@ https://github.com/user-attachments/assets/7c632762-cb31-401a-aae9-c211d5f3af00
   <summary>网页端营养统计</summary>
   <br />
   <img src="docs/assets/web-statistics.png" width="1000" alt="网页端每周热量统计" />
-
+<div align="center">
 
 https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
 
+</div>
 </details>
 
 录屏展示课程演示版本，页面中的营养值属于估算结果。当前源码与演示版本的差异在技术文档中单独说明。
