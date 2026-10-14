@@ -21,11 +21,11 @@ The SwiftUI views use system serif text. SVG headings use Georgia with Times New
 
 ## Composition and motion
 
-The cover uses the original app icon, a fixed product description and a three-color nutrition ring. Its breathing outline is decorative; the ring is not a live measurement. The architecture and pipeline diagrams keep labels stationary and animate small markers along existing connectors. They illustrate data flow rather than actual service activity.
+The README begins with the original app icon, a plain product title, description and text navigation. The generator retains optional cover and navigation assets from the earlier presentation, but the README does not embed them. The architecture and pipeline diagrams keep labels stationary and animate small markers along existing connectors. They illustrate data flow rather than actual service activity.
 
-All animation is contained in SVG image assets. `prefers-reduced-motion: reduce` hides the animated overlays while retaining the complete static design. Navigation uses ordinary Markdown/HTML links; no scripts, tracking or external animation service is used.
+Diagram animation is contained in SVG image assets. `prefers-reduced-motion: reduce` hides the animated overlays while retaining the complete static design. The centered animated WebP preview loops the full recording silently; a `<picture>` source selects a static nutrition screenshot when reduced motion is requested. Full video players are centered inside expandable sections. Navigation uses ordinary Markdown/HTML links; no scripts, tracking or external animation service is used.
 
-GitHub strips README inline styles, so the native prose retains the reader's GitHub font and theme. The cover, navigation, section headings, footer and diagrams carry the application's visual styling. Body text remains selectable and readable instead of being converted to an image.
+GitHub strips README inline styles, so the native prose retains the reader's GitHub font and theme. The section headings, footer and diagrams carry the application's visual styling. Body text remains selectable and readable instead of being converted to an image.
 
 ## Regenerate
 
