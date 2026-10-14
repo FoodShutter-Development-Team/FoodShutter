@@ -1,0 +1,26 @@
+{
+  "videos": [
+    {
+      "file": "foodshutter-film.mp4",
+      "attachment_url": "https://github.com/user-attachments/assets/7c632762-cb31-401a-aae9-c211d5f3af00",
+      "source_presentation": "FoodShutter_finalversion.pptx",
+      "source_media": "media1.mp4",
+      "slide": 52,
+      "original_duration_seconds": 60.23,
+      "bytes": 5868937,
+      "sha256": "42df59699a948a64b46ecbcc3d49aa530e4828c7c6f23311cd76c7a23a547832",
+      "encoding": "H.264 video, 30 fps, AAC audio; complete duration, no temporal cuts"
+    },
+    {
+      "file": "web-walkthrough.mp4",
+      "attachment_url": "https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c",
+      "source_presentation": "FoodShutter_finalversion.pptx",
+      "source_media": "media2.mp4",
+      "slide": 67,
+      "original_duration_seconds": 34.92,
+      "bytes": 917123,
+      "sha256": "cad9fd55f238b22a232460849330cd65679dc264eeb4e5eb9020f0e421c0740c",
+      "encoding": "H.264 video, 30 fps, AAC audio; complete duration, no temporal cuts"
+    }
+  ]
+}

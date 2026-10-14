@@ -11,7 +11,11 @@ The supplied final presentation contains two embedded screen recordings. Reposit
 | [iOS demo](assets/ios-demo.mp4) | Capture, analysis, nutrition and dish ingredients | 22 seconds |
 | [Web demo](assets/web-demo.mp4) | Statistics and appearance/settings views | 14 seconds |
 
-The complete H.264 recordings retain all original frames in sequence and their audio. They were transcoded to approximately 5.9 MB and 0.9 MB respectively. The earlier silent excerpts remain available. The overview pages also embed the full iOS recording using a GitHub video attachment.
+The complete H.264 recordings retain the full recording duration and content, including audio. They were transcoded to approximately 5.9 MB and 0.9 MB respectively. The earlier silent excerpts remain available. The overview pages also embed the full iOS recording using a GitHub video attachment.
+
+## Inline playback
+
+The README uses GitHub-hosted video attachments. The same compressed files are tracked in the repository for portability. [The media manifest](assets/media-manifest.json) records their checksums and source slide.
 
 ## Screens
 

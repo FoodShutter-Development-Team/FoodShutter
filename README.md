@@ -18,7 +18,9 @@ The project was developed by a six-person team for a software project management
 
 The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations, with the original audio preserved.
 
-[Watch the complete iOS film, about 60 seconds](docs/assets/foodshutter-film.mp4)
+https://github.com/user-attachments/assets/7c632762-cb31-401a-aae9-c211d5f3af00
+
+[Complete video file](docs/assets/foodshutter-film.mp4)
 
 Screens captured from the same recording:
 
@@ -42,6 +44,10 @@ Screens captured from the same recording:
   <br />
   <img src="docs/assets/web-statistics.png" width="1000" alt="FoodShutter web statistics page with a weekly calorie chart" />
   <p>The web client reads shared meal records and provides a dashboard, history, weekly or monthly statistics, and appearance settings.</p>
+
+
+https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
+
 </details>
 
 The recording shows the course demonstration build. Its displayed nutrition values are estimates; the current source and deployment requirements are documented separately.

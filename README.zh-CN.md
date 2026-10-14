@@ -18,7 +18,9 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
 
 完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程，以及原始音轨。
 
-[观看完整 iOS 宣传演示，约 60 秒](docs/assets/foodshutter-film.mp4)
+https://github.com/user-attachments/assets/7c632762-cb31-401a-aae9-c211d5f3af00
+
+[完整视频文件](docs/assets/foodshutter-film.mp4)
 
 以下截图来自同一段实际录屏。
 
@@ -37,6 +39,10 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
   <summary>网页端营养统计</summary>
   <br />
   <img src="docs/assets/web-statistics.png" width="1000" alt="网页端每周热量统计" />
+
+
+https://github.com/user-attachments/assets/285e5be6-b7c1-4ec0-ac44-80cce7d0b54c
+
 </details>
 
 录屏展示课程演示版本，页面中的营养值属于估算结果。当前源码与演示版本的差异在技术文档中单独说明。
