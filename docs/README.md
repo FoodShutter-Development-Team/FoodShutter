@@ -16,6 +16,7 @@ These documents describe the source tree at baseline `3a7bf20`, the final course
 | [Evaluation](evaluation.md) | What does the final presentation's five-angle comparison demonstrate? |
 | [Deployment](deployment.md) | What remains before an independently reproducible, public release? |
 | [Demo](demo.md) | Which recording produced the screenshots and compressed video excerpts? |
+| [Visual design](design/README.md) | Which application colors, typography and motion define the README assets? |
 | [Project context](project-context.md) | How did course scope, team roles and management exercises inform the project? |
 
 ## Source precedence
@@ -28,6 +29,6 @@ The original backend notes remain available in [`Backend/docs`](../Backend/docs)
 
 ## Diagram and media files
 
-[`assets`](assets) contains original demonstration frames, compressed silent excerpts, native draw.io source files and SVG assets with embedded diagram XML. The diagrams represent this repository's implementation. They do not imply the presence of a durable job queue, automatic deployment or a provisioned database.
+[`assets`](assets) contains original demonstration frames, complete recordings with audio, compressed silent excerpts, native draw.io source files and SVG assets with embedded diagram XML. [The asset generator](design/build_assets.py) reproduces the application styling and animated overlays. The diagrams represent this repository's implementation. They do not imply the presence of a durable job queue, automatic deployment or a provisioned database.
 
 No student IDs, service credentials, raw training datasets or trained model weights are included in this documentation package.
