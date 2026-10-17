@@ -21,7 +21,7 @@ FoodShutter 从一张餐食照片中检测多道菜品，估算食材、份量�
 <a name="演示" id="演示"></a>
 <h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-demo.mobile.zh-CN.svg" /><img src="docs/assets/section-demo.zh-CN.svg" width="100%" alt="演示" /></picture></h2>
 
-完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程。下方无声预览自动循环播放，展开播放器可观看保留原始音轨的完整视频。
+完整视频保留期末演示的登录、引导、拍摄、分析、食材明细和建议流程。下方高清无声预览以原速的三分之二自动循环播放，每轮约 90 秒，方便查看界面。展开播放器可观看原速的完整有声视频。
 
 <p align="center">
   <picture>

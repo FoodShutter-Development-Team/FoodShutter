@@ -28,7 +28,7 @@ The project was developed by a six-person team for a software project management
 <a name="demo" id="demo"></a>
 <h2><picture><source media="(max-width: 600px)" srcset="docs/assets/section-demo.mobile.svg" /><img src="docs/assets/section-demo.svg" width="100%" alt="Demo" /></picture></h2>
 
-The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations. The silent preview below loops automatically; expand the player to watch with the original audio.
+The complete course film includes sign-in, onboarding, capture, analysis, ingredient detail and recommendations. The silent preview loops at two-thirds speed, about 90 seconds per loop, with higher-resolution imagery. Expand the player to watch the original-speed film with audio.
 
 <p align="center">
   <picture>

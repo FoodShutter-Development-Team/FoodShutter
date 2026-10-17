@@ -26,16 +26,25 @@
   "previews": [
     {
       "file": "foodshutter-preview.webp",
-      "source_file": "foodshutter-film.mp4",
-      "duration_seconds": 60.2,
-      "width": 360,
-      "height": 782,
-      "fps": 10,
-      "frames": 590,
+      "source_presentation": "FoodShutter_finalversion.pptx",
+      "source_media": "media1.mp4",
+      "slide": 52,
+      "source_width": 886,
+      "source_height": 1920,
+      "source_sha256": "6867a935085ed61e9ebc947cf7acb68377691ce35eed6b17d29905984a575a94",
+      "duration_seconds": 90.375,
+      "playback_speed": 0.6666666666666666,
+      "width": 600,
+      "height": 1300,
+      "source_sampling_fps": 12,
+      "fps": 8,
+      "frames": 715,
       "loop": 0,
       "audio": false,
-      "bytes": 6606906,
-      "sha256": "7817f82cd55cae93321c943a37ee914b55a26076e8a6e8fc02b2c51ac71418ab"
+      "quality": 88,
+      "compression_level": 6,
+      "bytes": 25774792,
+      "sha256": "a556e897a25694b423748789c9631efaf2697535e0364b877d1caf5074e7969b"
     }
   ]
 }
